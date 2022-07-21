@@ -105,7 +105,7 @@ ${diffs.map((diff) => {
           return `\`${diff.path}\`:
 \`\`\`
 ${diff.checkers.join(`
-`).split(/\,/).join(`
+`).split(/\,/).sort().join(`
 `)}
 \`\`\`
 `;
