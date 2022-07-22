@@ -84,13 +84,7 @@ async function run(): Promise<void> {
     }
 
     if (diffs.length > 0) {
-      await octokit.rest.pulls.createReview({
-        owner,
-        repo,
-        pull_number: prNumber,
-        event: 'COMMENT',
-        body: `
-Hi there 👋
+      let body = `Hi there 👋
 
 Your code has been automatically adjusted.
 
@@ -99,9 +93,10 @@ Make sure to do a \`git pull\` to synchronize your local branch, and make sure t
 Take note of any manual adjustments that might need to be done at the bottom of this comment.
 
 [You can read more about this automated process in the docs](https://ydocs.intranet.yarakuzen.com/style_standards/php.html#automated-code-styling).
+`;
 
-The following fixes were applied:
-${diffs.map((diff) => {
+      if (diffs.length > 0) {
+        body += diffs.map((diff) => {
           return `\`${diff.path}\`:
 \`\`\`
 ${diff.checkers.join(`
@@ -110,8 +105,15 @@ ${diff.checkers.join(`
 \`\`\`
 `;
         }).join(`
-`)}
-`,
+`);
+      }
+
+      await octokit.rest.pulls.createReview({
+        owner,
+        repo,
+        pull_number: prNumber,
+        event: 'COMMENT',
+        body: body,
       });
     }
 
