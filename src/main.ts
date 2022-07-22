@@ -123,7 +123,7 @@ ${diff.checkers.join(`
         owner,
         repo,
         pull_number: prNumber,
-        event: 'COMMENT',
+        event: 'REQUEST_CHANGES',
         comments: comments,
       });
     }
