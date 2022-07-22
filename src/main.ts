@@ -1,13 +1,6 @@
 import * as core from '@actions/core'
 import * as github from '@actions/github'
 
-type PRComment = {
-  path: string,
-  line: number,
-  start_line?: number,
-  body: string,
-}
-
 type ECSError = {
   message: string,
   line: number,
