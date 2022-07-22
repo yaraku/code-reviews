@@ -83,7 +83,7 @@ async function run(): Promise<void> {
       comments.push(...errors);
     }
 
-    if (diffs.length > 0) {
+    if (json.totals.diffs > 0) {
       let body = `Hi there 👋
 
 Your code has been automatically adjusted.
