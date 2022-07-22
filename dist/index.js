@@ -84,14 +84,8 @@ function run() {
                 diffs.push({ path: file_path, checkers: [...fileCheckers] });
                 comments.push(...errors);
             }
-            if (diffs.length > 0) {
-                yield octokit.rest.pulls.createReview({
-                    owner,
-                    repo,
-                    pull_number: prNumber,
-                    event: 'COMMENT',
-                    body: `
-Hi there 👋
+            if (json.totals.diffs > 0) {
+                let body = `Hi there 👋
 
 Your code has been automatically adjusted.
 
@@ -100,19 +94,25 @@ Make sure to do a \`git pull\` to synchronize your local branch, and make sure t
 Take note of any manual adjustments that might need to be done at the bottom of this comment.
 
 [You can read more about this automated process in the docs](https://ydocs.intranet.yarakuzen.com/style_standards/php.html#automated-code-styling).
-
-The following fixes were applied:
-${diffs.map((diff) => {
+`;
+                if (diffs.length > 0) {
+                    body += diffs.map((diff) => {
                         return `\`${diff.path}\`:
 \`\`\`
 ${diff.checkers.join(`
-`).split(/\,/).join(`
+`).split(/\,/).sort().join(`
 `)}
 \`\`\`
 `;
                     }).join(`
-`)}
-`,
+`);
+                }
+                yield octokit.rest.pulls.createReview({
+                    owner,
+                    repo,
+                    pull_number: prNumber,
+                    event: 'COMMENT',
+                    body: body,
                 });
             }
             if (comments.length > 0) {
@@ -121,7 +121,7 @@ ${diff.checkers.join(`
                     owner,
                     repo,
                     pull_number: prNumber,
-                    event: 'COMMENT',
+                    event: 'REQUEST_CHANGES',
                     comments: comments,
                 });
             }
