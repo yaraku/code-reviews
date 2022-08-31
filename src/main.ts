@@ -2,52 +2,52 @@ import * as core from '@actions/core'
 import * as github from '@actions/github'
 
 type ECSError = {
-  message: string,
-  line: number,
-  file_path: string,
-  source_class: string,
-};
+  message: string
+  line: number
+  file_path: string
+  source_class: string
+}
 
 type ECSDiff = {
-  diff: string,
-  applied_checkers: Array<string>,
-};
+  diff: string
+  applied_checkers: Array<string>
+}
 
 type ECSOutput = {
-  errors: Array<ECSError>,
-  diffs: Array<ECSDiff>,
-};
+  errors: Array<ECSError>
+  diffs: Array<ECSDiff>
+}
 
 async function run(): Promise<void> {
   try {
-    const token = core.getInput('token');
+    const token = core.getInput('token')
     // API: https://actions-cool.github.io/octokit-rest/
-    const octokit = github.getOctokit(token);
+    const octokit = github.getOctokit(token)
 
-    const context = github.context;
+    const context = github.context
 
-    const { owner, repo } = context.repo;
-    const prNumber = context.payload.pull_request?.number ?? -1;
+    const {owner, repo} = context.repo
+    const prNumber = context.payload.pull_request?.number ?? -1
 
     if (prNumber === -1) {
-      throw new Error('Invalid PR number');
+      throw new Error('Invalid PR number')
     }
 
-    const json = JSON.parse(core.getInput('json_output'));
+    const json = JSON.parse(core.getInput('json_output'))
 
     if (json.totals.errors === 0) {
       await octokit.rest.pulls.createReview({
         owner,
         repo,
         pull_number: prNumber,
-        event: 'APPROVE',
-      });
+        event: 'APPROVE'
+      })
     }
 
-    const files: Array<ECSOutput> = json.files || [];
+    const files: Array<ECSOutput> = json.files || []
 
-    const comments = [];
-    const diffs = [];
+    const comments = []
+    const diffs = []
 
     for (const [file_path, value] of Object.entries(files)) {
       const errors = (value.errors || [])
@@ -55,19 +55,19 @@ async function run(): Promise<void> {
           return (
             index ===
             self.findIndex(obj => {
-              return obj.message === val.message && obj.line === val.line;
+              return obj.message === val.message && obj.line === val.line
             })
-          );
+          )
         })
-        .map((error) => {
+        .map(error => {
           return {
             path: error.file_path,
             body: `${error.message}\n\nSource: ${error.source_class}`,
-            line: error.line,
-          };
-        });
+            line: error.line
+          }
+        })
 
-      comments.push(...errors);
+      comments.push(...errors)
     }
 
     if (comments.length > 0) {
@@ -77,8 +77,8 @@ async function run(): Promise<void> {
         repo,
         pull_number: prNumber,
         event: 'REQUEST_CHANGES',
-        comments: comments,
-      });
+        comments: comments
+      })
     }
   } catch (error) {
     if (error instanceof Error) core.setFailed(error.message)
