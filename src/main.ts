@@ -1,22 +1,8 @@
 import * as core from '@actions/core'
 import * as github from '@actions/github'
-
-type ECSError = {
-  message: string
-  line: number
-  file_path: string
-  source_class: string
-}
-
-type ECSDiff = {
-  diff: string
-  applied_checkers: Array<string>
-}
-
-type ECSOutput = {
-  errors: Array<ECSError>
-  diffs: Array<ECSDiff>
-}
+import { Feedback } from './types'
+import { getComments } from './getComments'
+import { transformOutputToFeedback } from './transformOutputToFeedback'
 
 async function run(): Promise<void> {
   try {
