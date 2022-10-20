@@ -1,8 +1,8 @@
 import * as core from '@actions/core'
 import * as github from '@actions/github'
-import { Feedback } from './types'
-import { getComments } from './getComments'
-import { transformOutputToFeedback } from './transformOutputToFeedback'
+import {Feedback} from './types'
+import {getComments} from './getComments'
+import {transformOutputToFeedback} from './transformOutputToFeedback'
 
 async function run(): Promise<void> {
   try {
@@ -12,7 +12,7 @@ async function run(): Promise<void> {
 
     const context = github.context
 
-    const { owner, repo } = context.repo
+    const {owner, repo} = context.repo
     const prNumber = context.payload.pull_request?.number ?? -1
 
     if (prNumber === -1) {
@@ -30,8 +30,8 @@ async function run(): Promise<void> {
       })
     }
 
-    const files: Array<Feedback> = transformOutputToFeedback(json.files);
-    const comments = getComments(files);
+    const files: Array<Feedback> = transformOutputToFeedback(json.files)
+    const comments = getComments(files)
 
     if (comments.length > 0) {
       // Create review

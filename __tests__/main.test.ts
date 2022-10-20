@@ -1,8 +1,8 @@
-import { expect, test } from '@jest/globals'
+import {expect, test} from '@jest/globals'
 import * as json from './fixtures/ZEN-10221.json'
-import { getComments } from '../src/getComments'
-import { transformOutputToFeedback } from '../src/transformOutputToFeedback'
-import { Comment, Feedback } from '../src/types'
+import {getComments} from '../src/getComments'
+import {transformOutputToFeedback} from '../src/transformOutputToFeedback'
+import {Comment, Feedback} from '../src/types'
 
 test('It transforms JSON output to feedback', () => {
   const files: Feedback[] = transformOutputToFeedback(json.files)
