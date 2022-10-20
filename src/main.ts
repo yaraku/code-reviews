@@ -1,8 +1,8 @@
 import * as core from '@actions/core'
 import * as github from '@actions/github'
 import {Feedback} from './types'
-import {getComments} from './getComments'
-import {transformOutputToFeedback} from './transformOutputToFeedback'
+import {getComments} from './get-comments'
+import {transformOutputToFeedback} from './transform-output-to-feedback'
 
 async function run(): Promise<void> {
   try {
