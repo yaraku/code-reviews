@@ -12,7 +12,7 @@ async function run(): Promise<void> {
 
     const context = github.context
 
-    const {owner, repo} = context.repo
+    const { owner, repo } = context.repo
     const prNumber = context.payload.pull_request?.number ?? -1
 
     if (prNumber === -1) {
@@ -30,31 +30,8 @@ async function run(): Promise<void> {
       })
     }
 
-    const files: Array<ECSOutput> = json.files || []
-
-    const comments = []
-    const diffs = []
-
-    for (const [file_path, value] of Object.entries(files)) {
-      const errors = (value.errors || [])
-        .filter((val, index: any, self: any[]) => {
-          return (
-            index ===
-            self.findIndex(obj => {
-              return obj.message === val.message && obj.line === val.line
-            })
-          )
-        })
-        .map(error => {
-          return {
-            path: error.file_path,
-            body: `${error.message}\n\nSource: ${error.source_class}`,
-            line: error.line
-          }
-        })
-
-      comments.push(...errors)
-    }
+    const files: Array<Feedback> = transformOutputToFeedback(json.files);
+    const comments = getComments(files);
 
     if (comments.length > 0) {
       // Create review
