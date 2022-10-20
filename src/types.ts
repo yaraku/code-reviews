@@ -7,7 +7,7 @@ export type ECSError = {
 
 export type ECSDiff = {
   diff: string
-  applied_checkers: Array<string>
+  applied_checkers: string[]
 }
 
 export type Comment = {
@@ -20,5 +20,5 @@ export type Comment = {
 
 export type Feedback = {
   path: string
-  feedback: Array<ECSError>
+  feedback: ECSError[]
 }

@@ -1,11 +1,11 @@
 import {Comment, ECSError, Feedback} from './types'
 
-export function getComments(feedback: Array<Feedback>): Array<Comment> {
-  const comments: Array<Comment> = []
+export function getComments(feedback: Feedback[]): Comment[] {
+  const comments: Comment[] = []
 
   for (const value of feedback) {
-    const c: Array<Comment> = value.feedback
-      .filter((a: ECSError, index: number, self: Array<ECSError>) => {
+    const c: Comment[] = value.feedback
+      .filter((a: ECSError, index: number, self: ECSError[]) => {
         return (
           index ===
           self.findIndex(

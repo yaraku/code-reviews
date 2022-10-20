@@ -30,7 +30,7 @@ async function run(): Promise<void> {
       })
     }
 
-    const files: Array<Feedback> = transformOutputToFeedback(json.files)
+    const files: Feedback[] = transformOutputToFeedback(json.files)
     const comments = getComments(files)
 
     if (comments.length > 0) {
@@ -40,7 +40,7 @@ async function run(): Promise<void> {
         repo,
         pull_number: prNumber,
         event: 'REQUEST_CHANGES',
-        comments: comments
+        comments
       })
     }
   } catch (error) {
