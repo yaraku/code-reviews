@@ -8,12 +8,12 @@ export function transformOutputToFeedback(outputs: any): Feedback[] {
     .map((file: any[]) => {
       const [path, feedback] = [file[0], file[1]]
 
-      const result: Feedback = {
+      const res: Feedback = {
         path,
         feedback: feedback.errors
       }
 
-      return result
+      return res
     })
 
   return result
