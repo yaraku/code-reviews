@@ -1,7 +1,7 @@
 import {expect, test} from '@jest/globals'
 import * as json from './fixtures/ZEN-10221.json'
-import {getComments} from '../src/getComments'
-import {transformOutputToFeedback} from '../src/transformOutputToFeedback'
+import {getComments} from '../src/get-comments'
+import {transformOutputToFeedback} from '../src/transform-output-to-feedback'
 import {Comment, Feedback} from '../src/types'
 
 test('It transforms JSON output to feedback', () => {
