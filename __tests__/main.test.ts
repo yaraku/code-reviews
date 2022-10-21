@@ -1,7 +1,9 @@
 import {expect, test} from '@jest/globals'
 import * as json from './fixtures/ZEN-10221.json'
+import {diff} from './fixtures/ZEN-10221.diff'
 import {getComments} from '../src/get-comments'
 import {transformOutputToFeedback} from '../src/transform-output-to-feedback'
+import {filterOutOfContextCode} from '../src/filter-out-of-context-code'
 import {Comment, Feedback} from '../src/types'
 
 test('It transforms JSON output to feedback', () => {
@@ -101,4 +103,23 @@ test('it handles empty JSON', () => {
   const comments: Comment[] = getComments(feedback)
 
   expect(comments).toEqual([])
+})
+
+test('it filters out comments that are present on diffs', () => {
+  const files: Feedback[] = transformOutputToFeedback(json.files)
+  const feedback: Feedback[] = filterOutOfContextCode(files, diff)
+  const comments: Comment[] = getComments(feedback)
+
+  expect(comments).toEqual([
+    {
+      path: 'app/Services/Language/Rules/LanguageMapper.php',
+      body:
+        'Line exceeds maximum limit of 100 characters; contains 101 characters\n' +
+        '\n' +
+        'Source: PHP_CodeSniffer\\Standards\\Generic\\Sniffs\\Files\\LineLengthSniff.MaxExceeded',
+      side: 'RIGHT',
+      start_side: 'RIGHT',
+      line: 25
+    }
+  ])
 })
