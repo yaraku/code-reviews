@@ -54,6 +54,10 @@ async function run(): Promise<void> {
       core.setFailed(gitDiffError)
     }
 
+    if (gitDiff === '') {
+      core.setFailed('Empty diff')
+    }
+
     const files: Feedback[] = transformOutputToFeedback(json.files)
     const comments = getComments(filterOutOfContextCode(files, gitDiff))
 

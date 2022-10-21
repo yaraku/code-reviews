@@ -161,6 +161,9 @@ function run() {
             if (gitDiffError) {
                 core.setFailed(gitDiffError);
             }
+            if (gitDiff === '') {
+                core.setFailed('Empty diff');
+            }
             const files = (0, transform_output_to_feedback_1.transformOutputToFeedback)(json.files);
             const comments = (0, get_comments_1.getComments)((0, filter_out_of_context_code_1.filterOutOfContextCode)(files, gitDiff));
             if (comments.length > 0) {
