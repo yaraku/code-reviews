@@ -3,6 +3,12 @@
     "app/Services/Language/Rules/LanguageMapper.php": {
       "errors": [
         {
+          "line": 25,
+          "file_path": "app/Services/Language/Rules/LanguageMapper.php",
+          "message": "Line exceeds maximum limit of 100 characters; contains 101 characters",
+          "source_class": "PHP_CodeSniffer\\Standards\\Generic\\Sniffs\\Files\\LineLengthSniff.MaxExceeded"
+        },
+        {
           "line": 61,
           "file_path": "app/Services/Language/Rules/LanguageMapper.php",
           "message": "Line exceeds maximum limit of 100 characters; contains 101 characters",

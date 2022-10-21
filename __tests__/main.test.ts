@@ -13,6 +13,14 @@ test('It transforms JSON output to feedback', () => {
       feedback: [
         {
           file_path: 'app/Services/Language/Rules/LanguageMapper.php',
+          line: 25,
+          message:
+            'Line exceeds maximum limit of 100 characters; contains 101 characters',
+          source_class:
+            'PHP_CodeSniffer\\Standards\\Generic\\Sniffs\\Files\\LineLengthSniff.MaxExceeded'
+        },
+        {
+          file_path: 'app/Services/Language/Rules/LanguageMapper.php',
           line: 61,
           message:
             'Line exceeds maximum limit of 100 characters; contains 101 characters',
@@ -55,6 +63,16 @@ test('It extracts comments from ZEN-10221', () => {
   const comments = getComments(output)
 
   expect(comments).toEqual([
+    {
+      path: 'app/Services/Language/Rules/LanguageMapper.php',
+      body:
+        'Line exceeds maximum limit of 100 characters; contains 101 characters\n' +
+        '\n' +
+        'Source: PHP_CodeSniffer\\Standards\\Generic\\Sniffs\\Files\\LineLengthSniff.MaxExceeded',
+      side: 'RIGHT',
+      start_side: 'RIGHT',
+      line: 25
+    },
     {
       path: 'app/Services/Language/Rules/LanguageMapper.php',
       body:
