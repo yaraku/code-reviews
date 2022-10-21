@@ -1,5 +1,5 @@
-import {ECSError, Feedback} from './types'
-import gitDiffParser, {File, Hunk} from 'gitdiff-parser'
+import {parseGitPatch} from './parse-git-patch'
+import {ECSError, Feedback, Patch} from './types'
 
 export function filterOutOfContextCode(
   feedback: Feedback[],
@@ -9,16 +9,11 @@ export function filterOutOfContextCode(
     return []
   }
 
-  const files = gitDiffParser.parse(diff)
+  const patches = parseGitPatch(diff)
 
-  const paths = files
-    .map((file: File) => {
-      return file.newPath !== file.oldPath
-        ? [file.newPath, file.oldPath]
-        : [file.newPath]
-    })
-    .flat(1)
-    .filter((path: string) => path !== '/dev/null')
+  const paths = patches.map((patch: Patch) => {
+    return patch.added.file
+  })
 
   return feedback
     .filter((fb: Feedback) => {
@@ -27,19 +22,17 @@ export function filterOutOfContextCode(
     .map((fb: Feedback) => {
       const filteredErrors: ECSError[] = fb.feedback.filter(
         (error: ECSError) => {
-          const foundFile = files.find(
-            (file: File) => file.newPath === error.file_path
+          const foundFile: Patch | undefined = patches.find(
+            (patch: Patch) => patch.added.file === error.file_path
           )
 
+          if (foundFile === undefined) {
+            return false
+          }
+
           return (
-            (
-              foundFile?.hunks.filter((hunk: Hunk) => {
-                return (
-                  error.line >= hunk.newStart &&
-                  error.line <= hunk.newStart + hunk.newLines
-                )
-              }) ?? []
-            ).length > 0
+            error.line >= foundFile.added.start &&
+            error.line <= foundFile.added.end
           )
         }
       )
