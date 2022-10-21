@@ -1,22 +1,10 @@
 import * as core from '@actions/core'
 import * as github from '@actions/github'
-
-type ECSError = {
-  message: string
-  line: number
-  file_path: string
-  source_class: string
-}
-
-type ECSDiff = {
-  diff: string
-  applied_checkers: Array<string>
-}
-
-type ECSOutput = {
-  errors: Array<ECSError>
-  diffs: Array<ECSDiff>
-}
+import {exec} from '@actions/exec'
+import {Feedback} from './types'
+import {getComments} from './get-comments'
+import {transformOutputToFeedback} from './transform-output-to-feedback'
+import {filterOutOfContextCode} from './filter-out-of-context-code'
 
 async function run(): Promise<void> {
   try {
@@ -27,9 +15,9 @@ async function run(): Promise<void> {
     const context = github.context
 
     const {owner, repo} = context.repo
-    const prNumber = context.payload.pull_request?.number ?? -1
+    const pull_number = context.payload.pull_request?.number ?? -1
 
-    if (prNumber === -1) {
+    if (pull_number === -1) {
       throw new Error('Invalid PR number')
     }
 
@@ -39,45 +27,44 @@ async function run(): Promise<void> {
       await octokit.rest.pulls.createReview({
         owner,
         repo,
-        pull_number: prNumber,
+        pull_number,
         event: 'APPROVE'
       })
     }
 
-    const files: Array<ECSOutput> = json.files || []
+    let gitDiff = ''
+    let gitDiffError = ''
 
-    const comments = []
-    const diffs = []
-
-    for (const [file_path, value] of Object.entries(files)) {
-      const errors = (value.errors || [])
-        .filter((val, index: any, self: any[]) => {
-          return (
-            index ===
-            self.findIndex(obj => {
-              return obj.message === val.message && obj.line === val.line
-            })
-          )
-        })
-        .map(error => {
-          return {
-            path: error.file_path,
-            body: `${error.message}\n\nSource: ${error.source_class}`,
-            line: error.line
+    try {
+      await exec('git', ['diff', '-U0', '--color=never'], {
+        listeners: {
+          stdout: (data: Buffer) => {
+            gitDiff += data.toString()
+          },
+          stderr: (data: Buffer) => {
+            gitDiffError += data.toString()
           }
-        })
-
-      comments.push(...errors)
+        }
+      })
+    } catch (error) {
+      if (error instanceof Error) core.setFailed(error.message)
     }
+
+    if (gitDiffError) {
+      core.setFailed(gitDiffError)
+    }
+
+    const files: Feedback[] = transformOutputToFeedback(json.files)
+    const comments = getComments(filterOutOfContextCode(files, gitDiff))
 
     if (comments.length > 0) {
       // Create review
       await octokit.rest.pulls.createReview({
         owner,
         repo,
-        pull_number: prNumber,
+        pull_number,
         event: 'REQUEST_CHANGES',
-        comments: comments
+        comments
       })
     }
   } catch (error) {

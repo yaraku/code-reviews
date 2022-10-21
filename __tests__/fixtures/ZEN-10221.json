@@ -1,0 +1,52 @@
+{
+  "files": {
+    "app/Services/Language/Rules/LanguageMapper.php": {
+      "errors": [
+        {
+          "line": 25,
+          "file_path": "app/Services/Language/Rules/LanguageMapper.php",
+          "message": "Line exceeds maximum limit of 100 characters; contains 101 characters",
+          "source_class": "PHP_CodeSniffer\\Standards\\Generic\\Sniffs\\Files\\LineLengthSniff.MaxExceeded"
+        },
+        {
+          "line": 61,
+          "file_path": "app/Services/Language/Rules/LanguageMapper.php",
+          "message": "Line exceeds maximum limit of 100 characters; contains 101 characters",
+          "source_class": "PHP_CodeSniffer\\Standards\\Generic\\Sniffs\\Files\\LineLengthSniff.MaxExceeded"
+        }
+      ]
+    },
+    "config/locales.php": {
+      "errors": [
+        {
+          "line": 1,
+          "file_path": "config/locales.php",
+          "message": "Missing required strict_types declaration",
+          "source_class": "PHP_CodeSniffer\\Standards\\Generic\\Sniffs\\PHP\\RequireStrictTypesSniff.MissingDeclaration"
+        }
+      ]
+    },
+    "database/migrations/2022_10_17_062901_insert_finnish_into_language_table.php": {
+      "diffs": [
+        {
+          "diff": "--- Original\n+++ New\n@@ -4,8 +4,7 @@\n \n use Illuminate\\Database\\Migrations\\Migration;\n \n-return new class extends Migration\n-{\n+return new class() extends Migration {\n     private const LANGUAGE_CODE = 'fi';\n \n     public function up(): void\n",
+          "applied_checkers": [
+            "PhpCsFixer\\Fixer\\ClassNotation\\ClassDefinitionFixer",
+            "PhpCsFixer\\Fixer\\Operator\\NewWithBracesFixer"
+          ]
+        }
+      ]
+    },
+    "database/migrations/2022_10_17_063101_insert_finnish_into_machine_translation_engine_language_pairs_table.php": {
+      "diffs": [
+        {
+          "diff": "--- Original\n+++ New\n@@ -4,8 +4,7 @@\n \n use Illuminate\\Database\\Migrations\\Migration;\n \n-return new class extends Migration\n-{\n+return new class() extends Migration {\n     /** @var array */\n     private const ENGINE_TYPES = [\n         'google', 'microsoft', 'deepL', 'yaraku'\n",
+          "applied_checkers": [
+            "PhpCsFixer\\Fixer\\ClassNotation\\ClassDefinitionFixer",
+            "PhpCsFixer\\Fixer\\Operator\\NewWithBracesFixer"
+          ]
+        }
+      ]
+    }
+  }
+}
