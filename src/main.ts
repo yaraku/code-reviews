@@ -13,9 +13,9 @@ async function run(): Promise<void> {
     const context = github.context
 
     const {owner, repo} = context.repo
-    const prNumber = context.payload.pull_request?.number ?? -1
+    const pull_number = context.payload.pull_request?.number ?? -1
 
-    if (prNumber === -1) {
+    if (pull_number === -1) {
       throw new Error('Invalid PR number')
     }
 
@@ -25,7 +25,7 @@ async function run(): Promise<void> {
       await octokit.rest.pulls.createReview({
         owner,
         repo,
-        pull_number: prNumber,
+        pull_number,
         event: 'APPROVE'
       })
     }
@@ -38,7 +38,7 @@ async function run(): Promise<void> {
       await octokit.rest.pulls.createReview({
         owner,
         repo,
-        pull_number: prNumber,
+        pull_number,
         event: 'REQUEST_CHANGES',
         comments
       })
