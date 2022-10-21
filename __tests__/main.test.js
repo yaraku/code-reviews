@@ -25,14 +25,22 @@ var __importStar = (this && this.__importStar) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const globals_1 = require("@jest/globals");
 const json = __importStar(require("./fixtures/ZEN-10221.json"));
-const getComments_1 = require("../src/getComments");
-const transformOutputToFeedback_1 = require("../src/transformOutputToFeedback");
+const ZEN_10221_diff_1 = require("./fixtures/ZEN-10221.diff");
+const get_comments_1 = require("../src/get-comments");
+const transform_output_to_feedback_1 = require("../src/transform-output-to-feedback");
+const filter_out_of_context_code_1 = require("../src/filter-out-of-context-code");
 (0, globals_1.test)('It transforms JSON output to feedback', () => {
-    const files = (0, transformOutputToFeedback_1.transformOutputToFeedback)(json.files);
+    const files = (0, transform_output_to_feedback_1.transformOutputToFeedback)(json.files);
     (0, globals_1.expect)(files).toEqual([
         {
             path: 'app/Services/Language/Rules/LanguageMapper.php',
             feedback: [
+                {
+                    file_path: 'app/Services/Language/Rules/LanguageMapper.php',
+                    line: 25,
+                    message: 'Line exceeds maximum limit of 100 characters; contains 101 characters',
+                    source_class: 'PHP_CodeSniffer\\Standards\\Generic\\Sniffs\\Files\\LineLengthSniff.MaxExceeded'
+                },
                 {
                     file_path: 'app/Services/Language/Rules/LanguageMapper.php',
                     line: 61,
@@ -67,8 +75,17 @@ const transformOutputToFeedback_1 = require("../src/transformOutputToFeedback");
         };
         return result;
     });
-    const comments = (0, getComments_1.getComments)(output);
+    const comments = (0, get_comments_1.getComments)(output);
     (0, globals_1.expect)(comments).toEqual([
+        {
+            path: 'app/Services/Language/Rules/LanguageMapper.php',
+            body: 'Line exceeds maximum limit of 100 characters; contains 101 characters\n' +
+                '\n' +
+                'Source: PHP_CodeSniffer\\Standards\\Generic\\Sniffs\\Files\\LineLengthSniff.MaxExceeded',
+            side: 'RIGHT',
+            start_side: 'RIGHT',
+            line: 25
+        },
         {
             path: 'app/Services/Language/Rules/LanguageMapper.php',
             body: 'Line exceeds maximum limit of 100 characters; contains 101 characters\n' +
@@ -90,7 +107,23 @@ const transformOutputToFeedback_1 = require("../src/transformOutputToFeedback");
     ]);
 });
 (0, globals_1.test)('it handles empty JSON', () => {
-    const feedback = (0, transformOutputToFeedback_1.transformOutputToFeedback)([]);
-    const comments = (0, getComments_1.getComments)(feedback);
+    const feedback = (0, transform_output_to_feedback_1.transformOutputToFeedback)([]);
+    const comments = (0, get_comments_1.getComments)(feedback);
     (0, globals_1.expect)(comments).toEqual([]);
+});
+(0, globals_1.test)('it filters out comments that are present on diffs', () => {
+    const files = (0, transform_output_to_feedback_1.transformOutputToFeedback)(json.files);
+    const feedback = (0, filter_out_of_context_code_1.filterOutOfContextCode)(files, ZEN_10221_diff_1.diff);
+    const comments = (0, get_comments_1.getComments)(feedback);
+    (0, globals_1.expect)(comments).toEqual([
+        {
+            path: 'app/Services/Language/Rules/LanguageMapper.php',
+            body: 'Line exceeds maximum limit of 100 characters; contains 101 characters\n' +
+                '\n' +
+                'Source: PHP_CodeSniffer\\Standards\\Generic\\Sniffs\\Files\\LineLengthSniff.MaxExceeded',
+            side: 'RIGHT',
+            start_side: 'RIGHT',
+            line: 25
+        }
+    ]);
 });
