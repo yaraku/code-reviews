@@ -41,7 +41,13 @@ async function run(): Promise<void> {
       }
     })
 
-    parseDiff(data as unknown as string)
+    console.log(data)
+
+    const diff = data.body
+
+    // const diff = parseDiff(data as unknown as string)
+
+    // console.log(diff)
 
     const files: Feedback[] = transformOutputToFeedback(json.files)
     const comments = getComments(filterOutOfContextCode(files, diff))
