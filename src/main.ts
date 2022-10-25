@@ -1,10 +1,10 @@
 import * as core from '@actions/core'
 import * as github from '@actions/github'
-import {exec} from '@actions/exec'
 import {Feedback} from './types'
 import {getComments} from './get-comments'
 import {transformOutputToFeedback} from './transform-output-to-feedback'
 import {filterOutOfContextCode} from './filter-out-of-context-code'
+import parseDiff from 'parse-diff'
 
 async function run(): Promise<void> {
   try {
@@ -32,34 +32,19 @@ async function run(): Promise<void> {
       })
     }
 
-    let gitDiff = ''
-    let gitDiffError = ''
+    const {data} = await octokit.rest.pulls.get({
+      owner,
+      repo,
+      pull_number,
+      headers: {
+        accept: 'application/vnd.github.v3.diff'
+      }
+    })
 
-    try {
-      await exec('git', ['diff', '-U0', '--color=never'], {
-        listeners: {
-          stdout: (data: Buffer) => {
-            gitDiff += data.toString()
-          },
-          stderr: (data: Buffer) => {
-            gitDiffError += data.toString()
-          }
-        }
-      })
-    } catch (error) {
-      if (error instanceof Error) core.setFailed(error.message)
-    }
-
-    if (gitDiffError) {
-      core.setFailed(gitDiffError)
-    }
-
-    if (gitDiff === '') {
-      core.setFailed('Empty diff')
-    }
+    parseDiff(data as unknown as string)
 
     const files: Feedback[] = transformOutputToFeedback(json.files)
-    const comments = getComments(filterOutOfContextCode(files, gitDiff))
+    const comments = getComments(filterOutOfContextCode(files, diff))
 
     if (comments.length > 0) {
       // Create review
