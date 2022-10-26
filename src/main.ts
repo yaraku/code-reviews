@@ -4,7 +4,6 @@ import {Feedback} from './types'
 import {getComments} from './get-comments'
 import {transformOutputToFeedback} from './transform-output-to-feedback'
 import {filterOutOfContextCode} from './filter-out-of-context-code'
-import parseDiff from 'parse-diff'
 
 async function run(): Promise<void> {
   try {
@@ -41,13 +40,7 @@ async function run(): Promise<void> {
       }
     })
 
-    console.log(data)
-
-    const diff = data.body
-
-    // const diff = parseDiff(data as unknown as string)
-
-    // console.log(diff)
+    const diff = data as unknown as string
 
     const files: Feedback[] = transformOutputToFeedback(json.files)
     const comments = getComments(filterOutOfContextCode(files, diff))

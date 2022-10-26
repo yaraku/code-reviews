@@ -147,10 +147,7 @@ function run() {
                     accept: 'application/vnd.github.v3.diff'
                 }
             });
-            console.log(data);
-            const diff = data.body;
-            // const diff = parseDiff(data as unknown as string)
-            // console.log(diff)
+            const diff = data;
             const files = (0, transform_output_to_feedback_1.transformOutputToFeedback)(json.files);
             const comments = (0, get_comments_1.getComments)((0, filter_out_of_context_code_1.filterOutOfContextCode)(files, diff));
             if (comments.length > 0) {
