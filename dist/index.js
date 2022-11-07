@@ -2,20 +2,29 @@ require('./sourcemap-register.js');/******/ (() => { // webpackBootstrap
 /******/ 	var __webpack_modules__ = ({
 
 /***/ 7944:
-/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
 
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.filterOutOfContextCode = void 0;
-const parse_git_patch_1 = __nccwpck_require__(6337);
+const parse_git_diff_1 = __importDefault(__nccwpck_require__(9092));
 function filterOutOfContextCode(feedback, diff) {
     if (diff === null) {
         return [];
     }
-    const patches = (0, parse_git_patch_1.parseGitPatch)(diff);
-    const paths = patches.map((patch) => {
-        return patch.added.file;
+    const patches = (0, parse_git_diff_1.default)(diff);
+    const files = patches.files.filter(file => {
+        const isChangedFile = (x) => true;
+        const isAddedFile = (x) => true;
+        const isDeletedFile = (x) => true;
+        return isChangedFile(file) || isAddedFile(file) || isDeletedFile(file);
+    });
+    const paths = files.map(file => {
+        return file.path;
     });
     return feedback
         .filter((fb) => {
@@ -23,12 +32,25 @@ function filterOutOfContextCode(feedback, diff) {
     })
         .map((fb) => {
         const filteredErrors = fb.feedback.filter((error) => {
-            const foundFile = patches.find((patch) => patch.added.file === error.file_path);
+            var _a;
+            const foundFile = files.find(file => file.path ===
+                error.file_path);
             if (foundFile === undefined) {
                 return false;
             }
-            return (error.line >= foundFile.added.start &&
-                error.line <= foundFile.added.end);
+            for (const chunk of foundFile.chunks) {
+                for (const change of chunk.changes) {
+                    if (change.type === 'DeletedLine') {
+                        continue;
+                    }
+                    const c = change;
+                    const line = (_a = c === null || c === void 0 ? void 0 : c.lineBefore) !== null && _a !== void 0 ? _a : c === null || c === void 0 ? void 0 : c.lineAfter;
+                    if (error.line === line) {
+                        return true;
+                    }
+                }
+            }
+            return false;
         });
         fb.feedback = filteredErrors;
         return fb;
@@ -168,73 +190,6 @@ function run() {
     });
 }
 run();
-
-
-/***/ }),
-
-/***/ 6337:
-/***/ ((__unused_webpack_module, exports) => {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.parseGitPatch = void 0;
-/**
- * TODO: Look into using a package on npm for this
- *
- * gitdiff-parser seems like it would fit our usage the best,
- * but maybe just our simple parsing is good enough here.
- */
-function parseGitPatch(patch) {
-    const lines = patch.split('\n');
-    let currentFiles;
-    let currentPatch;
-    const patches = [];
-    // Need to parse this line by line
-    lines.forEach(line => {
-        const matches = line.match(/^diff --git a\/(.*?) b\/(.*)$/m);
-        if (matches) {
-            currentFiles = [matches[1], matches[2]];
-            return;
-        }
-        const patchMatches = line.match(/^@@ -(\d+)(?:,|)(\d*) \+(\d+)(?:,|)(\d*) @@/);
-        if (patchMatches) {
-            // push old patch
-            if (currentPatch) {
-                patches.push(currentPatch);
-            }
-            currentPatch = {
-                removed: {
-                    file: currentFiles[0],
-                    start: Number(patchMatches[1]),
-                    end: Number(patchMatches[1]) + Number(patchMatches[2]),
-                    lines: []
-                },
-                added: {
-                    file: currentFiles[1],
-                    start: Number(patchMatches[3]),
-                    end: Number(patchMatches[3]) + Number(patchMatches[4]),
-                    lines: []
-                }
-            };
-            return;
-        }
-        const contentMatches = line.match(/^(-|\+)(.*)$/);
-        if (contentMatches) {
-            // This can match `--- a/<file>` and `+++ b/<file>`, so ignore if no `currentPatch` object
-            if (!currentPatch) {
-                return;
-            }
-            const patchType = contentMatches[1] === '-' ? 'removed' : 'added';
-            currentPatch[patchType].lines.push(contentMatches[2]);
-        }
-    });
-    if (currentPatch) {
-        patches.push(currentPatch);
-    }
-    return patches;
-}
-exports.parseGitPatch = parseGitPatch;
 
 
 /***/ }),
@@ -8776,6 +8731,293 @@ function onceStrict (fn) {
   f.called = false
   return f
 }
+
+
+/***/ }),
+
+/***/ 9092:
+/***/ (function(module) {
+
+(function (global, factory) {
+     true ? module.exports = factory() :
+    0;
+})(this, (function () { 'use strict';
+
+    class Context {
+        constructor(diff) {
+            this.line = 1;
+            this.lines = [];
+            this.lines = diff.split('\n');
+        }
+        getCurLine() {
+            return this.lines[this.line - 1];
+        }
+        nextLine() {
+            this.line++;
+            return this.getCurLine();
+        }
+        isEof() {
+            return this.line > this.lines.length;
+        }
+    }
+
+    const LineType = {
+        Added: 'AddedLine',
+        Deleted: 'DeletedLine',
+        Unchanged: 'UnchangedLine',
+    };
+    const FileType = {
+        Changed: 'ChangedFile',
+        Added: 'AddedFile',
+        Deleted: 'DeletedFile',
+        Renamed: 'RenamedFile',
+    };
+    const ExtendedHeader = {
+        Index: 'index',
+        Old: 'old',
+        Copy: 'copy',
+        Similarity: 'similarity',
+        Dissimilarity: 'dissimilarity',
+        Deleted: 'deleted',
+        NewFile: 'new file',
+        RenameFrom: 'rename from',
+        RenameTo: 'rename to',
+    };
+    const ExtendedHeaderValues = Object.values(ExtendedHeader);
+
+    function parseGitDiff(diff) {
+        const ctx = new Context(diff);
+        const files = parseFileChanges(ctx);
+        return {
+            type: 'GitDiff',
+            files,
+        };
+    }
+    function parseFileChanges(ctx) {
+        const changedFiles = [];
+        while (!ctx.isEof()) {
+            const changed = parseFileChange(ctx);
+            if (!changed) {
+                break;
+            }
+            changedFiles.push(changed);
+        }
+        return changedFiles;
+    }
+    function parseFileChange(ctx) {
+        if (!isComparisonInputLine(ctx.getCurLine())) {
+            return;
+        }
+        ctx.nextLine();
+        let isDeleted = false;
+        let isNew = false;
+        let isRename = false;
+        let pathBefore = '';
+        let pathAfter = '';
+        while (!ctx.isEof()) {
+            const extHeader = parseExtendedHeader(ctx);
+            if (!extHeader) {
+                break;
+            }
+            if (extHeader.type === ExtendedHeader.Deleted)
+                isDeleted = true;
+            if (extHeader.type === ExtendedHeader.NewFile)
+                isNew = true;
+            if (extHeader.type === ExtendedHeader.RenameFrom) {
+                isRename = true;
+                pathBefore = extHeader.path;
+            }
+            if (extHeader.type === ExtendedHeader.RenameTo) {
+                isRename = true;
+                pathAfter = extHeader.path;
+            }
+        }
+        const changeMarkers = parseChangeMarkers(ctx);
+        const chunks = parseChunks(ctx);
+        if (isDeleted && changeMarkers) {
+            return {
+                type: FileType.Deleted,
+                chunks,
+                path: changeMarkers.deleted,
+            };
+        }
+        else if (isNew && changeMarkers) {
+            return {
+                type: FileType.Added,
+                chunks,
+                path: changeMarkers.added,
+            };
+        }
+        else if (isRename) {
+            return {
+                type: FileType.Renamed,
+                pathAfter,
+                pathBefore,
+                chunks,
+            };
+        }
+        else if (changeMarkers) {
+            return {
+                type: FileType.Changed,
+                chunks,
+                path: changeMarkers.added,
+            };
+        }
+        return;
+    }
+    function isComparisonInputLine(line) {
+        return line.indexOf('diff') === 0;
+    }
+    function parseChunks(context) {
+        const chunks = [];
+        while (!context.isEof()) {
+            const chunk = parseChunk(context);
+            if (!chunk) {
+                break;
+            }
+            chunks.push(chunk);
+        }
+        return chunks;
+    }
+    function parseChunk(context) {
+        const chunkHeader = parseChunkHeader(context);
+        if (!chunkHeader) {
+            return;
+        }
+        if (chunkHeader.type === 'Normal') {
+            const changes = parseChanges(context, chunkHeader.fromFileRange, chunkHeader.toFileRange);
+            return Object.assign(Object.assign({}, chunkHeader), { type: 'Chunk', changes });
+        }
+        else if (chunkHeader.type === 'Combined' &&
+            chunkHeader.fromFileRangeA &&
+            chunkHeader.fromFileRangeB) {
+            const changes = parseChanges(context, chunkHeader.fromFileRangeA.start < chunkHeader.fromFileRangeB.start
+                ? chunkHeader.fromFileRangeA
+                : chunkHeader.fromFileRangeB, chunkHeader.toFileRange);
+            return Object.assign(Object.assign({}, chunkHeader), { type: 'CombinedChunk', changes });
+        }
+    }
+    function parseExtendedHeader(ctx) {
+        const line = ctx.getCurLine();
+        const type = ExtendedHeaderValues.find((v) => line.startsWith(v));
+        if (type) {
+            ctx.nextLine();
+        }
+        if (type === ExtendedHeader.RenameFrom || type === ExtendedHeader.RenameTo) {
+            return {
+                type,
+                path: line.slice(`${type} `.length),
+            };
+        }
+        else if (type) {
+            return {
+                type,
+            };
+        }
+        return null;
+    }
+    function parseChunkHeader(ctx) {
+        const line = ctx.getCurLine();
+        const normalChunkExec = /^@@\s\-(\d+),?(\d+)?\s\+(\d+),?(\d+)?\s@@/.exec(line);
+        if (!normalChunkExec) {
+            const combinedChunkExec = /^@@@\s\-(\d+),?(\d+)?\s\-(\d+),?(\d+)?\s\+(\d+),?(\d+)?\s@@@/.exec(line);
+            if (!combinedChunkExec) {
+                return null;
+            }
+            const [all, delStartA, delLinesA, delStartB, delLinesB, addStart, addLines,] = combinedChunkExec;
+            ctx.nextLine();
+            return {
+                type: 'Combined',
+                fromFileRangeA: getRange(delStartA, delLinesA),
+                fromFileRangeB: getRange(delStartB, delLinesB),
+                toFileRange: getRange(addStart, addLines),
+            };
+        }
+        const [all, delStart, delLines, addStart, addLines] = normalChunkExec;
+        ctx.nextLine();
+        return {
+            type: 'Normal',
+            toFileRange: getRange(addStart, addLines),
+            fromFileRange: getRange(delStart, delLines),
+        };
+    }
+    function getRange(start, lines) {
+        const startNum = parseInt(start, 10);
+        return {
+            start: startNum,
+            lines: lines === undefined ? startNum : parseInt(lines, 10),
+        };
+    }
+    function parseChangeMarkers(context) {
+        var _a, _b;
+        const deleted = (_a = parseMarker(context, '--- ')) === null || _a === void 0 ? void 0 : _a.replace('a/', '');
+        const added = (_b = parseMarker(context, '+++ ')) === null || _b === void 0 ? void 0 : _b.replace('b/', '');
+        return added && deleted ? { added, deleted } : null;
+    }
+    function parseMarker(context, marker) {
+        const line = context.getCurLine();
+        if (line === null || line === void 0 ? void 0 : line.startsWith(marker)) {
+            context.nextLine();
+            return line.replace(marker, '');
+        }
+        return null;
+    }
+    const CHAR_TYPE_MAP = {
+        '+': LineType.Added,
+        '-': LineType.Deleted,
+        ' ': LineType.Unchanged,
+    };
+    function parseChanges(ctx, rangeBefore, rangeAfter) {
+        const changes = [];
+        let lineBefore = rangeBefore.start;
+        let lineAfter = rangeAfter.start;
+        while (!ctx.isEof()) {
+            const line = ctx.getCurLine();
+            const type = getLineType(line);
+            if (!type) {
+                break;
+            }
+            ctx.nextLine();
+            let change;
+            const content = line.slice(1);
+            switch (type) {
+                case LineType.Added: {
+                    change = {
+                        type,
+                        lineAfter: lineAfter++,
+                        content,
+                    };
+                    break;
+                }
+                case LineType.Deleted: {
+                    change = {
+                        type,
+                        lineBefore: lineBefore++,
+                        content,
+                    };
+                    break;
+                }
+                case LineType.Unchanged: {
+                    change = {
+                        type,
+                        lineBefore: lineBefore++,
+                        lineAfter: lineAfter++,
+                        content,
+                    };
+                    break;
+                }
+            }
+            changes.push(change);
+        }
+        return changes;
+    }
+    function getLineType(line) {
+        return CHAR_TYPE_MAP[line[0]] || null;
+    }
+
+    return parseGitDiff;
+
+}));
 
 
 /***/ }),

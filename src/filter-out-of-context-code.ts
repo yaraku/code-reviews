@@ -1,5 +1,11 @@
-import {parseGitPatch} from './parse-git-patch'
-import {ECSError, Feedback, Patch} from './types'
+import parseGitDiff from 'parse-git-diff'
+import {
+  AddedFile,
+  ChangedFile,
+  DeletedFile,
+  UnchangedLine
+} from 'parse-git-diff/build/types'
+import {ECSError, Feedback} from './types'
 
 export function filterOutOfContextCode(
   feedback: Feedback[],
@@ -9,10 +15,18 @@ export function filterOutOfContextCode(
     return []
   }
 
-  const patches = parseGitPatch(diff)
+  const patches = parseGitDiff(diff)
 
-  const paths = patches.map((patch: Patch) => {
-    return patch.added.file
+  const files = patches.files.filter(file => {
+    const isChangedFile = (x: unknown): x is ChangedFile => true
+    const isAddedFile = (x: unknown): x is AddedFile => true
+    const isDeletedFile = (x: unknown): x is DeletedFile => true
+
+    return isChangedFile(file) || isAddedFile(file) || isDeletedFile(file)
+  })
+
+  const paths = files.map(file => {
+    return (file as ChangedFile | AddedFile | DeletedFile).path
   })
 
   return feedback
@@ -22,18 +36,32 @@ export function filterOutOfContextCode(
     .map((fb: Feedback) => {
       const filteredErrors: ECSError[] = fb.feedback.filter(
         (error: ECSError) => {
-          const foundFile: Patch | undefined = patches.find(
-            (patch: Patch) => patch.added.file === error.file_path
+          const foundFile = files.find(
+            file =>
+              (file as ChangedFile | AddedFile | DeletedFile).path ===
+              error.file_path
           )
 
           if (foundFile === undefined) {
             return false
           }
 
-          return (
-            error.line >= foundFile.added.start &&
-            error.line <= foundFile.added.end
-          )
+          for (const chunk of foundFile.chunks) {
+            for (const change of chunk.changes) {
+              if (change.type === 'DeletedLine') {
+                continue
+              }
+
+              const c = change as UnchangedLine
+              const line = c?.lineBefore ?? c?.lineAfter
+
+              if (error.line === line) {
+                return true
+              }
+            }
+          }
+
+          return false
         }
       )
 

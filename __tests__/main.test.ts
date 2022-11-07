@@ -1,13 +1,16 @@
-import {expect, test} from '@jest/globals'
-import * as json from './fixtures/ZEN-10221.json'
-import {diff} from './fixtures/ZEN-10221.diff'
-import {getComments} from '../src/get-comments'
-import {transformOutputToFeedback} from '../src/transform-output-to-feedback'
-import {filterOutOfContextCode} from '../src/filter-out-of-context-code'
-import {Comment, Feedback} from '../src/types'
+import { expect, test } from '@jest/globals'
+import parseGitDiff from 'parse-git-diff'
+import { filterOutOfContextCode } from '../src/filter-out-of-context-code'
+import { getComments } from '../src/get-comments'
+import { transformOutputToFeedback } from '../src/transform-output-to-feedback'
+import { Comment, Feedback } from '../src/types'
+import { diff as ZEN10221_diff } from './fixtures/ZEN-10221.diff'
+import * as ZEN10221_json from './fixtures/ZEN-10221.json'
+import { diff as ZEN9720_PR680_diff } from './fixtures/ZEN-9720-PR-680.diff'
+import * as ZEN9720_PR680_json from './fixtures/ZEN-9720-PR-680.json'
 
 test('It transforms JSON output to feedback', () => {
-  const files: Feedback[] = transformOutputToFeedback(json.files)
+  const files: Feedback[] = transformOutputToFeedback(ZEN10221_json.files)
 
   expect(files).toEqual([
     {
@@ -47,7 +50,7 @@ test('It transforms JSON output to feedback', () => {
 })
 
 test('It extracts comments from ZEN-10221', () => {
-  const output: Feedback[] = Object.entries(json.files)
+  const output: Feedback[] = Object.entries(ZEN10221_json.files)
     .filter((file: any[]) => {
       return Object.keys(file[1]).includes('errors')
     })
@@ -106,8 +109,8 @@ test('it handles empty JSON', () => {
 })
 
 test('it filters out comments that are present on diffs', () => {
-  const files: Feedback[] = transformOutputToFeedback(json.files)
-  const feedback: Feedback[] = filterOutOfContextCode(files, diff)
+  const files: Feedback[] = transformOutputToFeedback(ZEN10221_json.files)
+  const feedback: Feedback[] = filterOutOfContextCode(files, ZEN10221_diff)
   const comments: Comment[] = getComments(feedback)
 
   expect(comments).toEqual([
@@ -120,6 +123,50 @@ test('it filters out comments that are present on diffs', () => {
       side: 'RIGHT',
       start_side: 'RIGHT',
       line: 25
+    }
+  ])
+})
+
+test('it parses git patches properly', () => {
+  const patches = parseGitDiff(ZEN9720_PR680_diff)
+
+  const types = patches.files[0].chunks[0].changes.map(c => c.type)
+
+  expect(types).toEqual([
+    'UnchangedLine',
+    'UnchangedLine',
+    'UnchangedLine',
+    'DeletedLine',
+    'AddedLine',
+    'UnchangedLine',
+    'UnchangedLine',
+    'UnchangedLine',
+    'UnchangedLine',
+    'UnchangedLine',
+    'DeletedLine',
+    'AddedLine',
+    'UnchangedLine',
+    'UnchangedLine',
+    'UnchangedLine'
+  ])
+})
+
+test('it passes review thread line being part of diff regression', () => {
+  const files: Feedback[] = transformOutputToFeedback(ZEN9720_PR680_json.files)
+  const feedback: Feedback[] = filterOutOfContextCode(files, ZEN9720_PR680_diff)
+
+  expect(feedback).toEqual([
+    {
+      feedback: [
+        {
+          file_path: 'tests/Integration/Stripe/StripeApiTestCase.php',
+          line: 142,
+          message: 'Implicit true comparisons prohibited; use === TRUE instead',
+          source_class:
+            'PHP_CodeSniffer\\Standards\\Squiz\\Sniffs\\Operators\\ComparisonOperatorUsageSniff.ImplicitTrue'
+        }
+      ],
+      path: 'tests/Integration/Stripe/StripeApiTestCase.php'
     }
   ])
 })
