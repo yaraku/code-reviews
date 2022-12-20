@@ -2,6 +2,7 @@ import parseGitDiff from 'parse-git-diff'
 import {
   AddedFile,
   ChangedFile,
+  ChunkRange,
   DeletedFile,
   UnchangedLine
 } from 'parse-git-diff/build/types'
@@ -47,16 +48,18 @@ export function filterOutOfContextCode(
           }
 
           for (const chunk of foundFile.chunks) {
-            for (const change of chunk.changes) {
-              if (change.type === 'DeletedLine') {
-                continue
-              }
+            if (chunkIsInRange(chunk.toFileRange, error.line)) {
+              for (const change of chunk.changes) {
+                if (change.type === 'DeletedLine') {
+                  continue
+                }
 
-              const c = change as UnchangedLine
-              const line = c?.lineBefore ?? c?.lineAfter
+                const c = change as UnchangedLine
+                const line = c?.lineBefore ?? c?.lineAfter
 
-              if (error.line === line) {
-                return true
+                if (error.line === line) {
+                  return true
+                }
               }
             }
           }
@@ -70,4 +73,9 @@ export function filterOutOfContextCode(
       return fb
     })
     .filter((fb: Feedback) => fb.feedback.length > 0)
+}
+
+function chunkIsInRange(lineRange: ChunkRange, line: Number): boolean {
+  return lineRange.start <= line  
+    && (lineRange.start + lineRange.lines) > line
 }
