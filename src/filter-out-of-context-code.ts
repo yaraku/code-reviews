@@ -76,6 +76,5 @@ export function filterOutOfContextCode(
 }
 
 function chunkIsInRange(lineRange: ChunkRange, line: Number): boolean {
-  return lineRange.start <= line  
-    && (lineRange.start + lineRange.lines) > line
+  return lineRange.start <= line && lineRange.start + lineRange.lines > line
 }

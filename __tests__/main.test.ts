@@ -1,14 +1,14 @@
-import { expect, test } from '@jest/globals'
+import {expect, test} from '@jest/globals'
 import parseGitDiff from 'parse-git-diff'
-import { filterOutOfContextCode } from '../src/filter-out-of-context-code'
-import { getComments } from '../src/get-comments'
-import { transformOutputToFeedback } from '../src/transform-output-to-feedback'
-import { Comment, Feedback } from '../src/types'
-import { diff as ZEN10221_diff } from './fixtures/ZEN-10221.diff'
+import {filterOutOfContextCode} from '../src/filter-out-of-context-code'
+import {getComments} from '../src/get-comments'
+import {transformOutputToFeedback} from '../src/transform-output-to-feedback'
+import {Comment, Feedback} from '../src/types'
+import {diff as ZEN10221_diff} from './fixtures/ZEN-10221.diff'
 import * as ZEN10221_json from './fixtures/ZEN-10221.json'
-import { diff as ZEN9720_PR680_diff } from './fixtures/ZEN-9720-PR-680.diff'
+import {diff as ZEN9720_PR680_diff} from './fixtures/ZEN-9720-PR-680.diff'
 import * as ZEN9720_PR680_json from './fixtures/ZEN-9720-PR-680.json'
-import { diff as ZEN9972_PR896_diff } from './fixtures/ZEN-9972-PR-896.diff'
+import {diff as ZEN9972_PR896_diff} from './fixtures/ZEN-9972-PR-896.diff'
 import * as ZEN9972_PR896_json from './fixtures/ZEN-9972-PR-896.json'
 
 test('It transforms JSON output to feedback', () => {
@@ -181,10 +181,12 @@ test('it passes ZEN-9972 PR-896 regression', () => {
     {
       feedback: [
         {
-          "file_path": "tests/Integration/Users/UserControllerTest.php",
-          "line": 334,
-          "message": "Line exceeds maximum limit of 100 characters; contains 103 characters",
-          "source_class": "PHP_CodeSniffer\\Standards\\Generic\\Sniffs\\Files\\LineLengthSniff.MaxExceeded",
+          file_path: 'tests/Integration/Users/UserControllerTest.php',
+          line: 334,
+          message:
+            'Line exceeds maximum limit of 100 characters; contains 103 characters',
+          source_class:
+            'PHP_CodeSniffer\\Standards\\Generic\\Sniffs\\Files\\LineLengthSniff.MaxExceeded'
         }
       ],
       path: 'tests/Integration/Users/UserControllerTest.php'

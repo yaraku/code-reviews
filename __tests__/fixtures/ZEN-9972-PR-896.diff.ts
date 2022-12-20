@@ -63,4 +63,4 @@ index 55d96c6b6b4..14ec81e7fb5 100644
 +        static::assertEquals($userLastVisitDate, $this->user->lastVisit);
      }
  
-     /*` 
+     /*`

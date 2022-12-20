@@ -12,5 +12,5 @@ export function transformOutputToFeedback(outputs: any): Feedback[] {
         path,
         feedback: feedback.errors
       } as Feedback
-    }) as Feedback[]
+    })
 }
