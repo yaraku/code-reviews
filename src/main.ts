@@ -47,6 +47,14 @@ async function run(): Promise<void> {
 
     if (comments.length > 0) {
       // Create review
+      console.debug({
+        owner,
+        repo,
+        pull_number,
+        event: 'REQUEST_CHANGES',
+        comments
+      })
+
       await octokit.rest.pulls.createReview({
         owner,
         repo,
