@@ -39,14 +39,16 @@ function filterOutOfContextCode(feedback, diff) {
                 return false;
             }
             for (const chunk of foundFile.chunks) {
-                for (const change of chunk.changes) {
-                    if (change.type === 'DeletedLine') {
-                        continue;
-                    }
-                    const c = change;
-                    const line = (_a = c === null || c === void 0 ? void 0 : c.lineBefore) !== null && _a !== void 0 ? _a : c === null || c === void 0 ? void 0 : c.lineAfter;
-                    if (error.line === line) {
-                        return true;
+                if (chunkIsInRange(chunk.toFileRange, error.line)) {
+                    for (const change of chunk.changes) {
+                        if (change.type === 'DeletedLine') {
+                            continue;
+                        }
+                        const c = change;
+                        const line = (_a = c === null || c === void 0 ? void 0 : c.lineBefore) !== null && _a !== void 0 ? _a : c === null || c === void 0 ? void 0 : c.lineAfter;
+                        if (error.line === line) {
+                            return true;
+                        }
                     }
                 }
             }
@@ -58,6 +60,9 @@ function filterOutOfContextCode(feedback, diff) {
         .filter((fb) => fb.feedback.length > 0);
 }
 exports.filterOutOfContextCode = filterOutOfContextCode;
+function chunkIsInRange(lineRange, line) {
+    return lineRange.start <= line && lineRange.start + lineRange.lines > line;
+}
 
 
 /***/ }),
@@ -174,6 +179,13 @@ function run() {
             const comments = (0, get_comments_1.getComments)((0, filter_out_of_context_code_1.filterOutOfContextCode)(files, diff));
             if (comments.length > 0) {
                 // Create review
+                core.info(JSON.stringify({
+                    owner,
+                    repo,
+                    pull_number,
+                    event: 'REQUEST_CHANGES',
+                    comments
+                }));
                 yield octokit.rest.pulls.createReview({
                     owner,
                     repo,
@@ -202,19 +214,17 @@ run();
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.transformOutputToFeedback = void 0;
 function transformOutputToFeedback(outputs) {
-    const result = Object.entries(outputs)
+    return Object.entries(outputs)
         .filter((file) => {
         return Object.keys(file[1]).includes('errors');
     })
         .map((file) => {
         const [path, feedback] = [file[0], file[1]];
-        const res = {
+        return {
             path,
             feedback: feedback.errors
         };
-        return res;
     });
-    return result;
 }
 exports.transformOutputToFeedback = transformOutputToFeedback;
 

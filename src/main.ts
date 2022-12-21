@@ -47,13 +47,15 @@ async function run(): Promise<void> {
 
     if (comments.length > 0) {
       // Create review
-      core.info(JSON.stringify({
-        owner,
-        repo,
-        pull_number,
-        event: 'REQUEST_CHANGES',
-        comments
-      }))
+      core.info(
+        JSON.stringify({
+          owner,
+          repo,
+          pull_number,
+          event: 'REQUEST_CHANGES',
+          comments
+        })
+      )
 
       await octokit.rest.pulls.createReview({
         owner,
