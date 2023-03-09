@@ -20,6 +20,6 @@ export type Comment = {
 
 export type Feedback = {
   path: string
-  feedback: PintError
+  feedback: ECSError|PintError
 }
 

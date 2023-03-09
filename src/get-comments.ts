@@ -4,9 +4,9 @@ import parse from 'parse-diff'
 export function getComments(feedback: Feedback[]): Comment[] {
   const comments: Comment[] = []
 
-  feedback.filter((value: Feedback) => {
-    console.log(parse(value.feedback.diff)[0].chunks[0])
-  })
+  // feedback.filter((value: Feedback) => {
+  //   console.log(parse(value.feedback.diff)[0].chunks[0])
+  // })
   // for (const value of feedback) {
   //   const c: Comment[] = value.feedback
   //     .filter((a: ECSError, index: number, self: ECSError[]) => {

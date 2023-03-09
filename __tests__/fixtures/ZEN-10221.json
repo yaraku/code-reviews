@@ -1,52 +1,50 @@
 {
-  "files": {
-    "app/Services/Language/Rules/LanguageMapper.php": {
-      "errors": [
-        {
-          "line": 25,
-          "file_path": "app/Services/Language/Rules/LanguageMapper.php",
-          "message": "Line exceeds maximum limit of 100 characters; contains 101 characters",
-          "source_class": "PHP_CodeSniffer\\Standards\\Generic\\Sniffs\\Files\\LineLengthSniff.MaxExceeded"
-        },
-        {
-          "line": 61,
-          "file_path": "app/Services/Language/Rules/LanguageMapper.php",
-          "message": "Line exceeds maximum limit of 100 characters; contains 101 characters",
-          "source_class": "PHP_CodeSniffer\\Standards\\Generic\\Sniffs\\Files\\LineLengthSniff.MaxExceeded"
-        }
-      ]
-    },
-    "config/locales.php": {
-      "errors": [
-        {
-          "line": 1,
-          "file_path": "config/locales.php",
-          "message": "Missing required strict_types declaration",
-          "source_class": "PHP_CodeSniffer\\Standards\\Generic\\Sniffs\\PHP\\RequireStrictTypesSniff.MissingDeclaration"
-        }
-      ]
-    },
-    "database/migrations/2022_10_17_062901_insert_finnish_into_language_table.php": {
-      "diffs": [
-        {
-          "diff": "--- Original\n+++ New\n@@ -4,8 +4,7 @@\n \n use Illuminate\\Database\\Migrations\\Migration;\n \n-return new class extends Migration\n-{\n+return new class() extends Migration {\n     private const LANGUAGE_CODE = 'fi';\n \n     public function up(): void\n",
-          "applied_checkers": [
-            "PhpCsFixer\\Fixer\\ClassNotation\\ClassDefinitionFixer",
-            "PhpCsFixer\\Fixer\\Operator\\NewWithBracesFixer"
-          ]
-        }
-      ]
-    },
-    "database/migrations/2022_10_17_063101_insert_finnish_into_machine_translation_engine_language_pairs_table.php": {
-      "diffs": [
-        {
-          "diff": "--- Original\n+++ New\n@@ -4,8 +4,7 @@\n \n use Illuminate\\Database\\Migrations\\Migration;\n \n-return new class extends Migration\n-{\n+return new class() extends Migration {\n     /** @var array */\n     private const ENGINE_TYPES = [\n         'google', 'microsoft', 'deepL', 'yaraku'\n",
-          "applied_checkers": [
-            "PhpCsFixer\\Fixer\\ClassNotation\\ClassDefinitionFixer",
-            "PhpCsFixer\\Fixer\\Operator\\NewWithBracesFixer"
-          ]
-        }
-      ]
-    }
-  }
+   "files":[
+      {
+         "name":"\/Users\/yaraku\/Projects\/zen\/app\/Services\/Language\/Rules\/LanguageMapper.php",
+         "appliedFixers":[
+            "concat_space",
+            "trailing_comma_in_multiline",
+            "blank_line_before_statement"
+         ],
+         "diff":"--- \/Users\/yaraku\/Projects\/zen\/app\/Services\/Language\/Rules\/LanguageMapper.php\n+++ \/Users\/yaraku\/Projects\/zen\/app\/Services\/Language\/Rules\/LanguageMapper.php\n@@ -50,6 +50,7 @@\n                 return new Thai();\n             default:\n                 $this->logRuleSetNotFoundError($language);\n+\n                 return new English();\n         }\n     }\n@@ -58,10 +59,10 @@\n     {\n         Log::warning(\n             self::class\n-            . '::getLanguageSpecificGetter could not find an rule set for given the given language. '\n-            . 'Used the fallback ruleset (English).',\n+            .'::getLanguageSpecificGetter could not find an rule set for given the given language. '\n+            .'Used the fallback ruleset (English).',\n             [\n-                'language' => $language->id\n+                'language' => $language->id,\n             ]\n         );\n     }\n"
+      },
+      {
+         "name":"\/Users\/yaraku\/Projects\/zen\/app\/Services\/Segment\/Segmentation\/Sentence\/SentenceSegmenterStrategy.php",
+         "appliedFixers":[
+            "phpdoc_separation"
+         ],
+         "diff":"--- \/Users\/yaraku\/Projects\/zen\/app\/Services\/Segment\/Segmentation\/Sentence\/SentenceSegmenterStrategy.php\n+++ \/Users\/yaraku\/Projects\/zen\/app\/Services\/Segment\/Segmentation\/Sentence\/SentenceSegmenterStrategy.php\n@@ -17,6 +17,7 @@\n \n     \/**\n      * @return string[]\n+     *\n      * @throws Exception\n      *\/\n     public function getSentences(\n"
+      },
+      {
+         "name":"\/Users\/yaraku\/Projects\/zen\/app\/Services\/Segment\/Segmentation\/Sentence\/SubsegmenterStrategy.php",
+         "appliedFixers":[
+            "phpdoc_separation"
+         ],
+         "diff":"--- \/Users\/yaraku\/Projects\/zen\/app\/Services\/Segment\/Segmentation\/Sentence\/SubsegmenterStrategy.php\n+++ \/Users\/yaraku\/Projects\/zen\/app\/Services\/Segment\/Segmentation\/Sentence\/SubsegmenterStrategy.php\n@@ -15,6 +15,7 @@\n \n     \/**\n      * @return array[]\n+     *\n      * @throws Exceptions\\TextLanguageUnsupportedException\n      *\/\n     public function getSubsegments(array $sentences): array\n"
+      },
+      {
+         "name":"\/Users\/yaraku\/Projects\/zen\/database\/migrations\/2022_10_17_062901_insert_finnish_into_language_table.php",
+         "appliedFixers":[
+            "class_definition",
+            "braces",
+            "trailing_comma_in_multiline"
+         ],
+         "diff":"--- \/Users\/yaraku\/Projects\/zen\/database\/migrations\/2022_10_17_062901_insert_finnish_into_language_table.php\n+++ \/Users\/yaraku\/Projects\/zen\/database\/migrations\/2022_10_17_062901_insert_finnish_into_language_table.php\n@@ -13,7 +13,7 @@\n         DB::table('languages')\n             ->insert([\n                 'id' => self::LANGUAGE_CODE,\n-                'type' => 'word'\n+                'type' => 'word',\n             ]);\n     }\n \n"
+      },
+      {
+         "name":"\/Users\/yaraku\/Projects\/zen\/database\/migrations\/2022_10_17_063101_insert_finnish_into_machine_translation_engine_language_pairs_table.php",
+         "appliedFixers":[
+            "class_definition",
+            "braces",
+            "curly_braces_position",
+            "trailing_comma_in_multiline"
+         ],
+         "diff":"--- \/Users\/yaraku\/Projects\/zen\/database\/migrations\/2022_10_17_063101_insert_finnish_into_machine_translation_engine_language_pairs_table.php\n+++ \/Users\/yaraku\/Projects\/zen\/database\/migrations\/2022_10_17_063101_insert_finnish_into_machine_translation_engine_language_pairs_table.php\n@@ -8,7 +8,7 @@\n {\n     \/** @var array *\/\n     private const ENGINE_TYPES = [\n-        'google', 'microsoft', 'deepL', 'yaraku'\n+        'google', 'microsoft', 'deepL', 'yaraku',\n     ];\n \n     \/** @var string *\/\n@@ -19,7 +19,7 @@\n         'google' => [],\n         'microsoft' => ['tl'],\n         'deepL' => ['ar', 'bn', 'hi', 'ko', 'mn', 'ms', 'my', 'ne', 'th', 'tl', 'vi', 'zh_Hant'],\n-        'yaraku' => []\n+        'yaraku' => [],\n     ];\n \n     public function up(): void\n@@ -42,12 +42,12 @@\n                 $languagePairs[] = [\n                     'sourceLanguage_id' => self::FINNISH,\n                     'targetLanguage_id' => $language,\n-                    'machineTranslationEngine_id' => $engineId\n+                    'machineTranslationEngine_id' => $engineId,\n                 ];\n                 $languagePairs[] = [\n                     'sourceLanguage_id' => $language,\n                     'targetLanguage_id' => self::FINNISH,\n-                    'machineTranslationEngine_id' => $engineId\n+                    'machineTranslationEngine_id' => $engineId,\n                 ];\n             }\n         }\n"
+      }
+   ],
+   "time":{
+      "total":0
+   },
+   "memory":0
 }

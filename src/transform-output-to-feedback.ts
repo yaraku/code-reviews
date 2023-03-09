@@ -1,7 +1,7 @@
 import {Feedback, PintError} from './types'
 
 export function transformOutputToFeedback(outputs: any): Feedback[] {
-  return Object.entries(outputs)
+  const output = Object.entries(outputs)
     .map((file: any[]) => {
       const [path, feedback] = [file[1].name, file[1]]
 
@@ -15,4 +15,6 @@ export function transformOutputToFeedback(outputs: any): Feedback[] {
         feedback: errors
       } as Feedback
     })
+
+  return output
 }
