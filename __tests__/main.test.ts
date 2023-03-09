@@ -165,43 +165,6 @@ test('It transforms JSON output to feedback', () => {
       path: '/Users/yaraku/Projects/zen/database/migrations/2022_10_17_063101_insert_finnish_into_machine_translation_engine_language_pairs_table.php',
     }
   ])
-
-
-  // expect(files).toEqual([
-  //   {
-  //     path: 'app/Services/Language/Rules/LanguageMapper.php',
-  //     feedback: [
-  //       {
-  //         file_path: 'app/Services/Language/Rules/LanguageMapper.php',
-  //         line: 25,
-  //         message:
-  //           'Line exceeds maximum limit of 100 characters; contains 101 characters',
-  //         source_class:
-  //           'PHP_CodeSniffer\\Standards\\Generic\\Sniffs\\Files\\LineLengthSniff.MaxExceeded'
-  //       },
-  //       {
-  //         file_path: 'app/Services/Language/Rules/LanguageMapper.php',
-  //         line: 61,
-  //         message:
-  //           'Line exceeds maximum limit of 100 characters; contains 101 characters',
-  //         source_class:
-  //           'PHP_CodeSniffer\\Standards\\Generic\\Sniffs\\Files\\LineLengthSniff.MaxExceeded'
-  //       }
-  //     ]
-  //   },
-  //   {
-  //     path: 'config/locales.php',
-  //     feedback: [
-  //       {
-  //         file_path: 'config/locales.php',
-  //         line: 1,
-  //         message: 'Missing required strict_types declaration',
-  //         source_class:
-  //           'PHP_CodeSniffer\\Standards\\Generic\\Sniffs\\PHP\\RequireStrictTypesSniff.MissingDeclaration'
-  //       }
-  //     ]
-  //   }
-  // ])
 })
 //
 // test('It extracts comments from ZEN-10221', () => {
