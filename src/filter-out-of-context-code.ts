@@ -1,4 +1,4 @@
-import parse, { Chunk } from 'parse-diff'
+import parse, {Chunk} from 'parse-diff'
 import {Feedback, PintError} from './types'
 
 export function filterOutOfContextCode(
@@ -12,8 +12,8 @@ export function filterOutOfContextCode(
   const patches = parse(diff).map(patch => {
     const chunks: Chunk[] = patch.chunks.filter(chunk => {
       const unique = chunk.changes
-          .map(change => change.type)
-          .filter((type, i, arr) => arr.indexOf(type) === i)
+        .map(change => change.type)
+        .filter((type, i, arr) => arr.indexOf(type) === i)
 
       if (unique.length === 1 && unique[0] === 'del') {
         return false
@@ -22,43 +22,65 @@ export function filterOutOfContextCode(
       return true
     })
 
-    patch.chunks = chunks;
+    patch.chunks = chunks
 
     return patch
   })
 
-  const fudback = feedback
-    .filter((fb: Feedback) => patches.some(patch => patch.to === fb.path))
+  return feedback
+    .filter((fb: Feedback) =>
+      patches.filter(patch => fb.path?.includes(patch.to ?? ''))
+    )
     .map((fb: Feedback) => {
-      const feedback = parse((fb.feedback as PintError).diff).filter((error) => {
-        const foundFile = patches.find(patch => patch.to === fb.path)
+      const foundFile = patches.find(patch => fb.path?.includes(patch.to ?? ''))
 
-        if (foundFile === undefined) {
-          return false
-        }
-
-        for (const chunk of foundFile.chunks) {
-          for (const errChunk of error.chunks) {
-            if (errChunk.newStart <= chunk.newStart && errChunk.newStart + errChunk.newLines > chunk.newStart) {
-              return true
-            }
+      const feedback = parse((fb.feedback as PintError).diff)
+        .map(error => {
+          if (foundFile === undefined) {
+            error.chunks = []
+            return error
           }
-        }
 
-        return false
-      })
+          for (const chunk of foundFile.chunks) {
+            const chunks = error.chunks.filter(errChunk => {
+              const errorLines = errChunk.changes
+                .map(c => (c.type === 'normal' ? [c.ln1, c.ln2] : [c.ln]))
+                .flat()
+
+              if (
+                errorLines.some(
+                  line =>
+                    chunk.newStart <= line &&
+                    chunk.newStart + chunk.newLines > line
+                )
+              ) {
+                return true
+              }
+            })
+
+            error.chunks = chunks
+
+            return error
+          }
+
+          error.chunks = []
+          return error
+        })
+        .filter(error => error.chunks.length > 0)
 
       return feedback.flatMap(f => {
         return f.chunks.map(c => {
           return {
-            path: f.to,
-            source_class: c.changes.map(ch => ch.content).join("\n").replace("\\n", "\n"),
+            path: foundFile?.to,
+            source_class: c.changes
+              .map(ch => ch.content)
+              .join('\n')
+              .replace('\\n', '\n'),
             lines: [c.newStart, c.newStart + c.newLines],
-            message: (fb.feedback as PintError).applied_fixers.join(', '),
+            message: (fb.feedback as PintError).applied_fixers.join(', ')
           } as unknown as Feedback
         })
       }) as Feedback[]
-    }).flat()
-
-  return fudback
+    })
+    .flat()
 }

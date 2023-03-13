@@ -1,1 +1,16 @@
-{"files":[{"name":"\/Users\/yamashita\/Projects\/yaraku\/zen\/workbench\/yaraku\/admin\/tests\/Dictionary\/Controllers\/CompanyDictionaryControllerTest.php","appliedFixers":["visibility_required","blank_line_after_opening_tag"],"diff":"--- \/Users\/yamashita\/Projects\/yaraku\/zen\/workbench\/yaraku\/admin\/tests\/Dictionary\/Controllers\/CompanyDictionaryControllerTest.php\n+++ \/Users\/yamashita\/Projects\/yaraku\/zen\/workbench\/yaraku\/admin\/tests\/Dictionary\/Controllers\/CompanyDictionaryControllerTest.php\n@@ -1,5 +1,7 @@\n-<?php namespace Yaraku\\Admin\\Tests\\Dictionary\\Controllers;\n+<?php\n \n+namespace Yaraku\\Admin\\Tests\\Dictionary\\Controllers;\n+\n use App\\DBModels;\n use Auth;\n use Tests\\Integration\\Fixtures;\n@@ -7,7 +9,7 @@\n \n class CompanyDictionaryControllerTest extends TestCase\n {\n-    const BASE_URL = 'admin\/company';\n+    public const BASE_URL = 'admin\/company';\n \n     \/** @var DBModels\\User *\/\n     private $user;\n"}],"time":{"total":0},"memory":0}
+{
+  "files":[
+    {
+      "name":"workbench\/yaraku\/admin\/tests\/Dictionary\/Controllers\/CompanyDictionaryControllerTest.php",
+      "appliedFixers":[
+        "visibility_required",
+        "blank_line_after_opening_tag"
+      ],
+      "diff":"--- workbench\/yaraku\/admin\/tests\/Dictionary\/Controllers\/CompanyDictionaryControllerTest.php\n+++ workbench\/yaraku\/admin\/tests\/Dictionary\/Controllers\/CompanyDictionaryControllerTest.php\n@@ -1,5 +1,7 @@\n-<?php namespace Yaraku\\Admin\\Tests\\Dictionary\\Controllers;\n+<?php\n \n+namespace Yaraku\\Admin\\Tests\\Dictionary\\Controllers;\n+\n use App\\DBModels;\n use Auth;\n use Tests\\Integration\\Fixtures;\n@@ -7,7 +9,7 @@\n \n class CompanyDictionaryControllerTest extends TestCase\n {\n-    const BASE_URL = 'admin\/company';\n+    public const BASE_URL = 'admin\/company';\n \n     \/** @var DBModels\\User *\/\n     private $user;\n"
+    }
+  ],
+  "time":{
+    "total":0
+  },
+  "memory":0
+}

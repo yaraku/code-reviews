@@ -1,210 +1,23 @@
 {
-    "files": {
-        "app/Services/User/UserDeleterService.php": {
-            "errors": [
-                {
-                    "line": 101,
-                    "file_path": "app/Services/User/UserDeleterService.php",
-                    "message": "Line exceeds maximum limit of 100 characters; contains 104 characters",
-                    "source_class": "PHP_CodeSniffer\\Standards\\Generic\\Sniffs\\Files\\LineLengthSniff.MaxExceeded"
-                },
-                {
-                    "line": 105,
-                    "file_path": "app/Services/User/UserDeleterService.php",
-                    "message": "Line exceeds maximum limit of 100 characters; contains 102 characters",
-                    "source_class": "PHP_CodeSniffer\\Standards\\Generic\\Sniffs\\Files\\LineLengthSniff.MaxExceeded"
-                },
-                {
-                    "line": 131,
-                    "file_path": "app/Services/User/UserDeleterService.php",
-                    "message": "Implicit true comparisons prohibited; use === TRUE instead",
-                    "source_class": "PHP_CodeSniffer\\Standards\\Squiz\\Sniffs\\Operators\\ComparisonOperatorUsageSniff.ImplicitTrue"
-                }
-            ]
-        },
-        "tests/Integration/Stripe/StripeApiTestCase.php": {
-            "errors": [
-                {
-                    "line": 22,
-                    "file_path": "tests/Integration/Stripe/StripeApiTestCase.php",
-                    "message": "Line exceeds maximum limit of 100 characters; contains 105 characters",
-                    "source_class": "PHP_CodeSniffer\\Standards\\Generic\\Sniffs\\Files\\LineLengthSniff.MaxExceeded"
-                },
-                {
-                    "line": 24,
-                    "file_path": "tests/Integration/Stripe/StripeApiTestCase.php",
-                    "message": "Line exceeds maximum limit of 100 characters; contains 111 characters",
-                    "source_class": "PHP_CodeSniffer\\Standards\\Generic\\Sniffs\\Files\\LineLengthSniff.MaxExceeded"
-                },
-                {
-                    "line": 55,
-                    "file_path": "tests/Integration/Stripe/StripeApiTestCase.php",
-                    "message": "Line exceeds maximum limit of 100 characters; contains 655 characters",
-                    "source_class": "PHP_CodeSniffer\\Standards\\Generic\\Sniffs\\Files\\LineLengthSniff.MaxExceeded"
-                },
-                {
-                    "line": 59,
-                    "file_path": "tests/Integration/Stripe/StripeApiTestCase.php",
-                    "message": "Line exceeds maximum limit of 100 characters; contains 300 characters",
-                    "source_class": "PHP_CodeSniffer\\Standards\\Generic\\Sniffs\\Files\\LineLengthSniff.MaxExceeded"
-                },
-                {
-                    "line": 63,
-                    "file_path": "tests/Integration/Stripe/StripeApiTestCase.php",
-                    "message": "Line exceeds maximum limit of 100 characters; contains 1116 characters",
-                    "source_class": "PHP_CodeSniffer\\Standards\\Generic\\Sniffs\\Files\\LineLengthSniff.MaxExceeded"
-                },
-                {
-                    "line": 67,
-                    "file_path": "tests/Integration/Stripe/StripeApiTestCase.php",
-                    "message": "Line exceeds maximum limit of 100 characters; contains 748 characters",
-                    "source_class": "PHP_CodeSniffer\\Standards\\Generic\\Sniffs\\Files\\LineLengthSniff.MaxExceeded"
-                },
-                {
-                    "line": 69,
-                    "file_path": "tests/Integration/Stripe/StripeApiTestCase.php",
-                    "message": "Line exceeds maximum limit of 100 characters; contains 127 characters",
-                    "source_class": "PHP_CodeSniffer\\Standards\\Generic\\Sniffs\\Files\\LineLengthSniff.MaxExceeded"
-                },
-                {
-                    "line": 72,
-                    "file_path": "tests/Integration/Stripe/StripeApiTestCase.php",
-                    "message": "Line exceeds maximum limit of 100 characters; contains 306 characters",
-                    "source_class": "PHP_CodeSniffer\\Standards\\Generic\\Sniffs\\Files\\LineLengthSniff.MaxExceeded"
-                },
-                {
-                    "line": 76,
-                    "file_path": "tests/Integration/Stripe/StripeApiTestCase.php",
-                    "message": "Line exceeds maximum limit of 100 characters; contains 674 characters",
-                    "source_class": "PHP_CodeSniffer\\Standards\\Generic\\Sniffs\\Files\\LineLengthSniff.MaxExceeded"
-                },
-                {
-                    "line": 80,
-                    "file_path": "tests/Integration/Stripe/StripeApiTestCase.php",
-                    "message": "Line exceeds maximum limit of 100 characters; contains 2068 characters",
-                    "source_class": "PHP_CodeSniffer\\Standards\\Generic\\Sniffs\\Files\\LineLengthSniff.MaxExceeded"
-                },
-                {
-                    "line": 98,
-                    "file_path": "tests/Integration/Stripe/StripeApiTestCase.php",
-                    "message": "Line exceeds maximum limit of 100 characters; contains 2538 characters",
-                    "source_class": "PHP_CodeSniffer\\Standards\\Generic\\Sniffs\\Files\\LineLengthSniff.MaxExceeded"
-                },
-                {
-                    "line": 102,
-                    "file_path": "tests/Integration/Stripe/StripeApiTestCase.php",
-                    "message": "Line exceeds maximum limit of 100 characters; contains 133 characters",
-                    "source_class": "PHP_CodeSniffer\\Standards\\Generic\\Sniffs\\Files\\LineLengthSniff.MaxExceeded"
-                },
-                {
-                    "line": 114,
-                    "file_path": "tests/Integration/Stripe/StripeApiTestCase.php",
-                    "message": "Line exceeds maximum limit of 100 characters; contains 184 characters",
-                    "source_class": "PHP_CodeSniffer\\Standards\\Generic\\Sniffs\\Files\\LineLengthSniff.MaxExceeded"
-                },
-                {
-                    "line": 115,
-                    "file_path": "tests/Integration/Stripe/StripeApiTestCase.php",
-                    "message": "Line exceeds maximum limit of 100 characters; contains 184 characters",
-                    "source_class": "PHP_CodeSniffer\\Standards\\Generic\\Sniffs\\Files\\LineLengthSniff.MaxExceeded"
-                },
-                {
-                    "line": 117,
-                    "file_path": "tests/Integration/Stripe/StripeApiTestCase.php",
-                    "message": "Line exceeds maximum limit of 100 characters; contains 126 characters",
-                    "source_class": "PHP_CodeSniffer\\Standards\\Generic\\Sniffs\\Files\\LineLengthSniff.MaxExceeded"
-                },
-                {
-                    "line": 119,
-                    "file_path": "tests/Integration/Stripe/StripeApiTestCase.php",
-                    "message": "Line exceeds maximum limit of 100 characters; contains 125 characters",
-                    "source_class": "PHP_CodeSniffer\\Standards\\Generic\\Sniffs\\Files\\LineLengthSniff.MaxExceeded"
-                },
-                {
-                    "line": 121,
-                    "file_path": "tests/Integration/Stripe/StripeApiTestCase.php",
-                    "message": "Line exceeds maximum limit of 100 characters; contains 110 characters",
-                    "source_class": "PHP_CodeSniffer\\Standards\\Generic\\Sniffs\\Files\\LineLengthSniff.MaxExceeded"
-                },
-                {
-                    "line": 124,
-                    "file_path": "tests/Integration/Stripe/StripeApiTestCase.php",
-                    "message": "Line exceeds maximum limit of 100 characters; contains 114 characters",
-                    "source_class": "PHP_CodeSniffer\\Standards\\Generic\\Sniffs\\Files\\LineLengthSniff.MaxExceeded"
-                },
-                {
-                    "line": 128,
-                    "file_path": "tests/Integration/Stripe/StripeApiTestCase.php",
-                    "message": "Line exceeds maximum limit of 100 characters; contains 105 characters",
-                    "source_class": "PHP_CodeSniffer\\Standards\\Generic\\Sniffs\\Files\\LineLengthSniff.MaxExceeded"
-                },
-                {
-                    "line": 129,
-                    "file_path": "tests/Integration/Stripe/StripeApiTestCase.php",
-                    "message": "Line exceeds maximum limit of 100 characters; contains 102 characters",
-                    "source_class": "PHP_CodeSniffer\\Standards\\Generic\\Sniffs\\Files\\LineLengthSniff.MaxExceeded"
-                },
-                {
-                    "line": 130,
-                    "file_path": "tests/Integration/Stripe/StripeApiTestCase.php",
-                    "message": "Line exceeds maximum limit of 100 characters; contains 177 characters",
-                    "source_class": "PHP_CodeSniffer\\Standards\\Generic\\Sniffs\\Files\\LineLengthSniff.MaxExceeded"
-                },
-                {
-                    "line": 131,
-                    "file_path": "tests/Integration/Stripe/StripeApiTestCase.php",
-                    "message": "Line exceeds maximum limit of 100 characters; contains 110 characters",
-                    "source_class": "PHP_CodeSniffer\\Standards\\Generic\\Sniffs\\Files\\LineLengthSniff.MaxExceeded"
-                },
-                {
-                    "line": 132,
-                    "file_path": "tests/Integration/Stripe/StripeApiTestCase.php",
-                    "message": "Line exceeds maximum limit of 100 characters; contains 148 characters",
-                    "source_class": "PHP_CodeSniffer\\Standards\\Generic\\Sniffs\\Files\\LineLengthSniff.MaxExceeded"
-                },
-                {
-                    "line": 133,
-                    "file_path": "tests/Integration/Stripe/StripeApiTestCase.php",
-                    "message": "Line exceeds maximum limit of 100 characters; contains 116 characters",
-                    "source_class": "PHP_CodeSniffer\\Standards\\Generic\\Sniffs\\Files\\LineLengthSniff.MaxExceeded"
-                },
-                {
-                    "line": 134,
-                    "file_path": "tests/Integration/Stripe/StripeApiTestCase.php",
-                    "message": "Line exceeds maximum limit of 100 characters; contains 120 characters",
-                    "source_class": "PHP_CodeSniffer\\Standards\\Generic\\Sniffs\\Files\\LineLengthSniff.MaxExceeded"
-                },
-                {
-                    "line": 137,
-                    "file_path": "tests/Integration/Stripe/StripeApiTestCase.php",
-                    "message": "Line exceeds maximum limit of 100 characters; contains 104 characters",
-                    "source_class": "PHP_CodeSniffer\\Standards\\Generic\\Sniffs\\Files\\LineLengthSniff.MaxExceeded"
-                },
-                {
-                    "line": 142,
-                    "file_path": "tests/Integration/Stripe/StripeApiTestCase.php",
-                    "message": "Implicit true comparisons prohibited; use === TRUE instead",
-                    "source_class": "PHP_CodeSniffer\\Standards\\Squiz\\Sniffs\\Operators\\ComparisonOperatorUsageSniff.ImplicitTrue"
-                },
-                {
-                    "line": 154,
-                    "file_path": "tests/Integration/Stripe/StripeApiTestCase.php",
-                    "message": "Implicit true comparisons prohibited; use === TRUE instead",
-                    "source_class": "PHP_CodeSniffer\\Standards\\Squiz\\Sniffs\\Operators\\ComparisonOperatorUsageSniff.ImplicitTrue"
-                },
-                {
-                    "line": 157,
-                    "file_path": "tests/Integration/Stripe/StripeApiTestCase.php",
-                    "message": "Line exceeds maximum limit of 100 characters; contains 137 characters",
-                    "source_class": "PHP_CodeSniffer\\Standards\\Generic\\Sniffs\\Files\\LineLengthSniff.MaxExceeded"
-                },
-                {
-                    "line": 188,
-                    "file_path": "tests/Integration/Stripe/StripeApiTestCase.php",
-                    "message": "Line exceeds maximum limit of 100 characters; contains 110 characters",
-                    "source_class": "PHP_CodeSniffer\\Standards\\Generic\\Sniffs\\Files\\LineLengthSniff.MaxExceeded"
-                }
-            ]
-        }
+  "files":[
+    {
+      "name":"\/tests\/Integration\/Stripe\/Concerns\/FakeStripeHttpClient.php",
+      "appliedFixers":[
+        "new_with_braces",
+        "class_definition"
+      ],
+      "diff":"--- \/tests\/Integration\/Stripe\/Concerns\/FakeStripeHttpClient.php\n+++ \/Users\/yaraku\/Projects\/zen\/tests\/Integration\/Stripe\/Concerns\/FakeStripeHttpClient.php\n@@ -10,8 +10,7 @@\n {\n     private function setHttpClient(): void\n     {\n-        ApiRequestor::setHttpClient(new class implements ClientInterface\n-        {\n+        ApiRequestor::setHttpClient(new class () implements ClientInterface {\n             public function request($method, $absUrl, $headers, $params, $hasFile)\n             {\n                 return Http::withHeaders($headers)->$method($absUrl, $params);\n"
+    },
+    {
+      "name":"\/workbench\/yaraku\/admin\/tests\/User\/Controller\/DeleteUserAndDataTest.php",
+      "appliedFixers":[
+        "no_unused_imports"
+      ],
+      "diff":"--- \/workbench\/yaraku\/admin\/tests\/User\/Controller\/DeleteUserAndDataTest.php\n+++ \/Users\/yaraku\/Projects\/zen\/workbench\/yaraku\/admin\/tests\/User\/Controller\/DeleteUserAndDataTest.php\n@@ -6,7 +6,6 @@\n \n use App\\DBModels;\n use App\\DBModels\\Role;\n-use App\\Services\\Accounting\\CardPayment\\Paygent;\n use App\\Services\\Segment\\Transformer\\Helper\\CreatorToUserMapperInterface;\n use App\\Services\\User\\TranslationMemory\\CreatorToUserMapper;\n use App\\Services\\User\\UserDeleterService;\n@@ -15,7 +14,6 @@\n use Faker;\n use Laravel\\Passport;\n use Tests\\Integration\\Fixtures\\DBModels as DBFixtures;\n-use Tests\\Integration\\Fixtures\\DBModels\\WalletFixture;\n use Tests\\Integration\\Fixtures\\Glossary\\WordFixture;\n use Tests\\Integration\\Fixtures\\Http\\Translation\\AdditionalTranslationsRequestBuilder;\n use Tests\\Integration\\Fixtures\\Http\\User\\SendResetPasswordEmailRequestBuilder;\n"
     }
+  ],
+  "time":{
+    "total":0
+  },
+  "memory":0
 }
