@@ -94,7 +94,7 @@ async function run(): Promise<void> {
       return [
         file.hunks.map((hunk: any) => {
           return {
-            path: file.newFileName,
+            path: foundFile.path,
             body: "```diff\n"
             + hunk.lines.join('\n')
             + "\n"

@@ -114,7 +114,7 @@ function run() {
                 return [
                     file.hunks.map((hunk) => {
                         return {
-                            path: file.newFileName,
+                            path: foundFile.path,
                             body: "```diff\n"
                                 + hunk.lines.join('\n')
                                 + "\n"
