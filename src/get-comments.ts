@@ -1,32 +1,27 @@
-import {Comment, ECSError, Feedback} from './types'
+import {Comment, Feedback} from './types'
 
 export function getComments(feedback: Feedback[]): Comment[] {
-  const comments: Comment[] = []
+  return feedback.map(fb => {
+    const error = fb as any
 
-  for (const value of feedback) {
-    const c: Comment[] = value.feedback
-      .filter((a: ECSError, index: number, self: ECSError[]) => {
-        return (
-          index ===
-          self.findIndex(
-            (b: ECSError) => a.message === b.message && a.line === b.line
-          )
-        )
-      })
-      .map((error: ECSError) => {
-        const comment: Comment = {
-          path: error.file_path,
-          body: `${error.message}\n\nSource: ${error.source_class}`,
-          side: 'RIGHT',
-          start_side: 'RIGHT',
-          line: error.line
-        }
+    const lines =
+      error.lines[0] === error.lines[1]
+        ? {line: error.lines[0]}
+        : {start_line: error.lines[0], line: error.lines[1]}
 
-        return comment
-      })
-
-    comments.push(...c)
-  }
-
-  return comments
+    return {
+      body: `Applied fixers: \`${error.message}\`
+<details>
+  <summary>Diff:</summary>
+  \`\`\`diff
+${error.source_class}
+  \`\`\`
+</details>
+`,
+      side: 'RIGHT',
+      start_side: 'RIGHT',
+      ...lines,
+      path: error.path
+    } as Comment
+  })
 }

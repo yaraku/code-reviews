@@ -1,12 +1,5 @@
-import parseGitDiff from 'parse-git-diff'
-import {
-  AddedFile,
-  ChangedFile,
-  ChunkRange,
-  DeletedFile,
-  UnchangedLine
-} from 'parse-git-diff/build/types'
-import {ECSError, Feedback} from './types'
+import parse, {Chunk} from 'parse-diff'
+import {Feedback, PintError} from './types'
 
 export function filterOutOfContextCode(
   feedback: Feedback[],
@@ -16,65 +9,78 @@ export function filterOutOfContextCode(
     return []
   }
 
-  const patches = parseGitDiff(diff)
+  const patches = parse(diff).map(patch => {
+    const chunks: Chunk[] = patch.chunks.filter(chunk => {
+      const unique = chunk.changes
+        .map(change => change.type)
+        .filter((type, i, arr) => arr.indexOf(type) === i)
 
-  const files = patches.files.filter(file => {
-    const isChangedFile = (x: unknown): x is ChangedFile => true
-    const isAddedFile = (x: unknown): x is AddedFile => true
-    const isDeletedFile = (x: unknown): x is DeletedFile => true
+      if (unique.length === 1 && unique[0] === 'del') {
+        return false
+      }
 
-    return isChangedFile(file) || isAddedFile(file) || isDeletedFile(file)
-  })
+      return true
+    })
 
-  const paths = files.map(file => {
-    return (file as ChangedFile | AddedFile | DeletedFile).path
+    patch.chunks = chunks
+
+    return patch
   })
 
   return feedback
-    .filter((fb: Feedback) => {
-      return paths.includes(fb.path)
-    })
+    .filter((fb: Feedback) =>
+      patches.filter(patch => fb.path?.includes(patch.to ?? ''))
+    )
     .map((fb: Feedback) => {
-      const filteredErrors: ECSError[] = fb.feedback.filter(
-        (error: ECSError) => {
-          const foundFile = files.find(
-            file =>
-              (file as ChangedFile | AddedFile | DeletedFile).path ===
-              error.file_path
-          )
+      const foundFile = patches.find(patch => fb.path?.includes(patch.to ?? ''))
 
+      const feedback = parse((fb.feedback as PintError).diff)
+        .map(error => {
           if (foundFile === undefined) {
-            return false
+            error.chunks = []
+            return error
           }
 
           for (const chunk of foundFile.chunks) {
-            if (chunkIsInRange(chunk.toFileRange, error.line)) {
-              for (const change of chunk.changes) {
-                if (change.type === 'DeletedLine') {
-                  continue
-                }
+            const chunks = error.chunks.filter(errChunk => {
+              const errorLines = errChunk.changes
+                .map(c => (c.type === 'normal' ? [c.ln1, c.ln2] : [c.ln]))
+                .flat()
 
-                const c = change as UnchangedLine
-                const line = c?.lineBefore ?? c?.lineAfter
-
-                if (error.line === line) {
-                  return true
-                }
+              if (
+                errorLines.some(
+                  line =>
+                    chunk.newStart <= line &&
+                    chunk.newStart + chunk.newLines > line
+                )
+              ) {
+                return true
               }
-            }
+            })
+
+            error.chunks = chunks
+
+            return error
           }
 
-          return false
-        }
-      )
+          error.chunks = []
+          return error
+        })
+        .filter(error => error.chunks.length > 0)
 
-      fb.feedback = filteredErrors
-
-      return fb
+      return feedback.flatMap(f => {
+        return f.chunks.map(c => {
+          return {
+            path: foundFile?.to,
+            source_class: c.changes
+              .map(ch => ch.content)
+              .join('\n')
+              .replace('\\n', '\n'),
+            lines: [c.newStart, c.newStart + c.newLines],
+            message: (fb.feedback as PintError).applied_fixers.join(', ')
+          } as unknown as Feedback
+        })
+      }) as Feedback[]
     })
-    .filter((fb: Feedback) => fb.feedback.length > 0)
-}
-
-function chunkIsInRange(lineRange: ChunkRange, line: Number): boolean {
-  return lineRange.start <= line && lineRange.start + lineRange.lines > line
+    .flat()
 }

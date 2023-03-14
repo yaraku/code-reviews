@@ -20,6 +20,18 @@ async function run(): Promise<void> {
       throw new Error('Invalid PR number')
     }
 
+    // This is the output of the Laravel Pint command
+    //
+    //  --test - meaning no changes
+    //  --preset=psr12 - meaning PSR12 preset
+    //  -v - meaning verbose so that we can get the diff as well
+    //  --format=json - meaning we want the output in JSON format
+    //
+    // ./vendor/bin/pint $1
+    //    --test
+    //    --preset=psr12
+    //    -v
+    //    --format=json
     const json = JSON.parse(core.getInput('json_output'))
 
     if (json.totals.errors === 0) {

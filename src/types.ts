@@ -5,9 +5,9 @@ export type ECSError = {
   source_class: string
 }
 
-export type ECSDiff = {
+export type PintError = {
   diff: string
-  applied_checkers: string[]
+  applied_fixers: string[]
 }
 
 export type Comment = {
@@ -20,5 +20,5 @@ export type Comment = {
 
 export type Feedback = {
   path: string
-  feedback: ECSError[]
+  feedback: ECSError | PintError
 }
