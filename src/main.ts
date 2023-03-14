@@ -75,21 +75,21 @@ async function run(): Promise<void> {
     })
   
     const comments = json.filter((file: any) => {
-      return file.newFileName, files.find((f:any) => f.path === file.newFileName) !== undefined
+      return files.find((f:any) => file.newFileName.includes(f.path)) !== undefined
     }).map((file: any) => {
-      const foundFile = files.find((f:any) => f.path === file.newFileName)
+      const foundFile = files.find((f:any) => file.newFileName.includes(f.path))
       const { hunks } = file
   
       file.hunks = hunks.filter((h:any) => {
         const { start, end } = {start: h.newStart, end: h.newStart + h.newLines - 1}
   
-        return start >= foundFile.start && end <= foundFile.end
+        return (start - foundFile.start >= 0 || end - foundFile.start >= 0) || (foundFile.end - end >= 0 || foundFile.end - start >= 0)
       })
   
       return file
     }).filter((file: any) => file.hunks.length > 0)
     .map((file: any) => {
-      const foundFile = files.find((f:any) => f.path === file.newFileName)
+      const foundFile = files.find((f:any) => file.newFileName.includes(f.path))
   
       return [
         file.hunks.map((hunk: any) => {
