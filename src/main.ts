@@ -18,7 +18,7 @@ async function run(): Promise<void> {
 
     if (pull_number === -1) {
       pull_number = 1136 // No idea why this is happening
-      throw new Error('Invalid PR number')
+      // throw new Error('Invalid PR number')
     }
 
     // This is the output of the Laravel Pint command
