@@ -109,6 +109,8 @@ async function run(): Promise<void> {
       ].flat()
     }).flat()
 
+    core.info(JSON.stringify(comments))
+
     if (comments.length > 0) {
       // Create review
       core.info(

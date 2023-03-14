@@ -128,6 +128,7 @@ function run() {
                     })
                 ].flat();
             }).flat();
+            core.info(JSON.stringify(comments));
             if (comments.length > 0) {
                 // Create review
                 core.info(JSON.stringify({
