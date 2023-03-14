@@ -14,9 +14,10 @@ async function run(): Promise<void> {
     const context = github.context
 
     const {owner, repo} = context.repo
-    const pull_number = context.payload.pull_request?.number ?? 1136
+    var pull_number = context.payload.pull_request?.number ?? 1136
 
     if (pull_number === -1) {
+      pull_number = 1136 // No idea why this is happening
       throw new Error('Invalid PR number')
     }
 
