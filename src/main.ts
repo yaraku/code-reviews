@@ -34,7 +34,7 @@ async function run(): Promise<void> {
     //    --format=json
     const json = JSON.parse(core.getInput('json_output'))
 
-    if (json.totals.errors === 0) {
+    if (json.files.length === 0) {
       await octokit.rest.pulls.createReview({
         owner,
         repo,
