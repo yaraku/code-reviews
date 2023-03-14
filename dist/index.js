@@ -87,17 +87,20 @@ exports.getComments = void 0;
 function getComments(feedback) {
     return feedback.map(fb => {
         const error = fb;
-        const lines = error.lines[0] === error.lines[1]
-            ? { line: error.lines[0] }
-            : { start_line: error.lines[0], line: error.lines[1] };
-        return Object.assign(Object.assign({ body: `Applied fixers: \`${error.message}\`
+        return {
+            body: `Applied fixers: \`${error.message}\`
 <details>
   <summary>Diff:</summary>
   \`\`\`diff
 ${error.source_class}
   \`\`\`
 </details>
-`, side: 'RIGHT', start_side: 'RIGHT' }, lines), { path: error.path });
+`,
+            side: 'RIGHT',
+            start_side: 'RIGHT',
+            line: error.lines[1],
+            path: error.path
+        };
     });
 }
 exports.getComments = getComments;

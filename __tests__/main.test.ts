@@ -256,7 +256,7 @@ describe('It correctly parses Pull Requests', () => {
             '</details>\n',
           side: 'RIGHT',
           start_side: 'RIGHT',
-          start_line: 13,
+          // start_line: 13,
           line: 20,
           path: 'database/migrations/2022_10_17_062901_insert_finnish_into_language_table.php'
         },
@@ -278,7 +278,7 @@ describe('It correctly parses Pull Requests', () => {
             '</details>\n',
           side: 'RIGHT',
           start_side: 'RIGHT',
-          start_line: 8,
+          // start_line: 8,
           line: 15,
           path: 'database/migrations/2022_10_17_063101_insert_finnish_into_machine_translation_engine_language_pairs_table.php'
         },
@@ -300,7 +300,7 @@ describe('It correctly parses Pull Requests', () => {
             '</details>\n',
           side: 'RIGHT',
           start_side: 'RIGHT',
-          start_line: 19,
+          // start_line: 19,
           line: 26,
           path: 'database/migrations/2022_10_17_063101_insert_finnish_into_machine_translation_engine_language_pairs_table.php'
         },
@@ -328,7 +328,7 @@ describe('It correctly parses Pull Requests', () => {
             '</details>\n',
           side: 'RIGHT',
           start_side: 'RIGHT',
-          start_line: 42,
+          // start_line: 42,
           line: 54,
           path: 'database/migrations/2022_10_17_063101_insert_finnish_into_machine_translation_engine_language_pairs_table.php'
         }
@@ -389,7 +389,7 @@ describe('It correctly parses Pull Requests', () => {
           '</details>\n',
         side: 'RIGHT',
         start_side: 'RIGHT',
-        start_line: 67,
+        // start_line: 67,
         line: 74,
         path: 'app/Services/OOXml/Parsing/TextNodeSearchers/TextNodeSearcher.php'
       }
