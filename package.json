@@ -28,7 +28,10 @@
     "@actions/core": "^1.6.0",
     "@actions/exec": "^1.1.1",
     "@actions/github": "^5.0.3",
-    "parse-diff": "^0.11.0"
+    "diff": "^5.1.0",
+    "parse-diff": "^0.11.0",
+    "parse-git-diff": "^0.0.8",
+    "parse-git-patch": "^1.1.0"
   },
   "devDependencies": {
     "@typescript-eslint/type-utils": "^5.40.1",

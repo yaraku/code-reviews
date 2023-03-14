@@ -4,6 +4,7 @@ import {Feedback} from './types'
 import {getComments} from './get-comments'
 import {transformOutputToFeedback} from './transform-output-to-feedback'
 import {filterOutOfContextCode} from './filter-out-of-context-code'
+const Diff = require('diff')
 
 async function run(): Promise<void> {
   try {
@@ -32,7 +33,7 @@ async function run(): Promise<void> {
     //    --preset=psr12
     //    -v
     //    --format=json
-    const json = JSON.parse(core.getInput('json_output'))
+    var json = JSON.parse(core.getInput('json_output'))
 
     if (json.files.length === 0) {
       await octokit.rest.pulls.createReview({
@@ -52,10 +53,60 @@ async function run(): Promise<void> {
       }
     })
 
-    const diff = data as unknown as string
+    // const diff = 
 
-    const files: Feedback[] = transformOutputToFeedback(json.files)
-    const comments = getComments(filterOutOfContextCode(files, diff))
+    // const files: Feedback[] = transformOutputToFeedback(json.files)
+    // const comments = getComments(filterOutOfContextCode(files, diff))
+
+    json = Diff.parsePatch(json.files.map((f: any) => f.diff).join('\n'))
+    const diff = Diff.parsePatch(data as unknown as string)
+  
+    // These are the files that are in the PR
+    const files = diff.map((d:any) => {
+      const lines = d.hunks.map((h:any) =>
+        [h.newStart, h.newStart + h.newLines - 1]
+      ).flat()
+
+      return {
+        path: d.newFileName.split(/^b\//)[1],
+        start: lines[0],
+        end: lines[1]
+      }
+    })
+  
+    const comments = json.filter((file: any) => {
+      return file.newFileName, files.find((f:any) => f.path === file.newFileName) !== undefined
+    }).map((file: any) => {
+      const foundFile = files.find((f:any) => f.path === file.newFileName)
+      const { hunks } = file
+  
+      file.hunks = hunks.filter((h:any) => {
+        const { start, end } = {start: h.newStart, end: h.newStart + h.newLines - 1}
+  
+        return start >= foundFile.start && end <= foundFile.end
+      })
+  
+      return file
+    }).filter((file: any) => file.hunks.length > 0)
+    .map((file: any) => {
+      const foundFile = files.find((f:any) => f.path === file.newFileName)
+  
+      return [
+        file.hunks.map((hunk: any) => {
+          return {
+            path: file.newFileName,
+            body: "```diff\n"
+            + hunk.lines.join('\n')
+            + "\n"
+            + "```",
+            side: 'RIGHT',
+            start_side: 'RIGHT',
+            start_line: foundFile.start >= hunk.newStart ? foundFile.start : hunk.newStart,
+            line: foundFile.end <= (hunk.newStart + hunk.newLines - 1) ? foundFile.end : (hunk.newStart + hunk.newLines - 1),
+          }
+        })
+      ].flat()
+    }).flat()
 
     if (comments.length > 0) {
       // Create review
