@@ -11,58 +11,68 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.filterOutOfContextCode = void 0;
-const parse_git_diff_1 = __importDefault(__nccwpck_require__(9092));
+const parse_diff_1 = __importDefault(__nccwpck_require__(4833));
 function filterOutOfContextCode(feedback, diff) {
     if (diff === null) {
         return [];
     }
-    const patches = (0, parse_git_diff_1.default)(diff);
-    const files = patches.files.filter(file => {
-        const isChangedFile = (x) => true;
-        const isAddedFile = (x) => true;
-        const isDeletedFile = (x) => true;
-        return isChangedFile(file) || isAddedFile(file) || isDeletedFile(file);
-    });
-    const paths = files.map(file => {
-        return file.path;
-    });
-    return feedback
-        .filter((fb) => {
-        return paths.includes(fb.path);
-    })
-        .map((fb) => {
-        const filteredErrors = fb.feedback.filter((error) => {
-            var _a;
-            const foundFile = files.find(file => file.path ===
-                error.file_path);
-            if (foundFile === undefined) {
+    const patches = (0, parse_diff_1.default)(diff).map(patch => {
+        const chunks = patch.chunks.filter(chunk => {
+            const unique = chunk.changes
+                .map(change => change.type)
+                .filter((type, i, arr) => arr.indexOf(type) === i);
+            if (unique.length === 1 && unique[0] === 'del') {
                 return false;
             }
-            for (const chunk of foundFile.chunks) {
-                if (chunkIsInRange(chunk.toFileRange, error.line)) {
-                    for (const change of chunk.changes) {
-                        if (change.type === 'DeletedLine') {
-                            continue;
-                        }
-                        const c = change;
-                        const line = (_a = c === null || c === void 0 ? void 0 : c.lineBefore) !== null && _a !== void 0 ? _a : c === null || c === void 0 ? void 0 : c.lineAfter;
-                        if (error.line === line) {
-                            return true;
-                        }
-                    }
-                }
-            }
-            return false;
+            return true;
         });
-        fb.feedback = filteredErrors;
-        return fb;
+        patch.chunks = chunks;
+        return patch;
+    });
+    return feedback
+        .filter((fb) => patches.filter(patch => { var _a, _b; return (_a = fb.path) === null || _a === void 0 ? void 0 : _a.includes((_b = patch.to) !== null && _b !== void 0 ? _b : ''); }))
+        .map((fb) => {
+        const foundFile = patches.find(patch => { var _a, _b; return (_a = fb.path) === null || _a === void 0 ? void 0 : _a.includes((_b = patch.to) !== null && _b !== void 0 ? _b : ''); });
+        const feedback = (0, parse_diff_1.default)(fb.feedback.diff)
+            .map(error => {
+            if (foundFile === undefined) {
+                error.chunks = [];
+                return error;
+            }
+            for (const chunk of foundFile.chunks) {
+                const chunks = error.chunks.filter(errChunk => {
+                    const errorLines = errChunk.changes
+                        .map(c => (c.type === 'normal' ? [c.ln1, c.ln2] : [c.ln]))
+                        .flat();
+                    if (errorLines.some(line => chunk.newStart <= line &&
+                        chunk.newStart + chunk.newLines > line)) {
+                        return true;
+                    }
+                });
+                error.chunks = chunks;
+                return error;
+            }
+            error.chunks = [];
+            return error;
+        })
+            .filter(error => error.chunks.length > 0);
+        return feedback.flatMap(f => {
+            return f.chunks.map(c => {
+                return {
+                    path: foundFile === null || foundFile === void 0 ? void 0 : foundFile.to,
+                    source_class: c.changes
+                        .map(ch => ch.content)
+                        .join('\n')
+                        .replace('\\n', '\n'),
+                    lines: [c.newStart, c.newStart + c.newLines],
+                    message: fb.feedback.applied_fixers.join(', ')
+                };
+            });
+        });
     })
-        .filter((fb) => fb.feedback.length > 0);
+        .flat();
 }
 exports.filterOutOfContextCode = filterOutOfContextCode;
-function chunkIsInRange(lineRange, line) {
-    return lineRange.start <= line && lineRange.start + lineRange.lines > line;
-}
 
 
 /***/ }),
@@ -75,26 +85,20 @@ function chunkIsInRange(lineRange, line) {
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.getComments = void 0;
 function getComments(feedback) {
-    const comments = [];
-    for (const value of feedback) {
-        const c = value.feedback
-            .filter((a, index, self) => {
-            return (index ===
-                self.findIndex((b) => a.message === b.message && a.line === b.line));
-        })
-            .map((error) => {
-            const comment = {
-                path: error.file_path,
-                body: `${error.message}\n\nSource: ${error.source_class}`,
-                side: 'RIGHT',
-                start_side: 'RIGHT',
-                line: error.line
-            };
-            return comment;
-        });
-        comments.push(...c);
-    }
-    return comments;
+    return feedback.map(fb => {
+        const error = fb;
+        const lines = error.lines[0] === error.lines[1]
+            ? { line: error.lines[0] }
+            : { start_line: error.lines[0], line: error.lines[1] };
+        return Object.assign(Object.assign({ body: `Applied fixers: \`${error.message}\`
+<details>
+  <summary>Diff:</summary>
+  \`\`\`diff
+${error.source_class}
+  \`\`\`
+</details>
+`, side: 'RIGHT', start_side: 'RIGHT' }, lines), { path: error.path });
+    });
 }
 exports.getComments = getComments;
 
@@ -153,10 +157,22 @@ function run() {
             const octokit = github.getOctokit(token);
             const context = github.context;
             const { owner, repo } = context.repo;
-            const pull_number = (_b = (_a = context.payload.pull_request) === null || _a === void 0 ? void 0 : _a.number) !== null && _b !== void 0 ? _b : -1;
+            var pull_number = (_b = (_a = context.payload.pull_request) === null || _a === void 0 ? void 0 : _a.number) !== null && _b !== void 0 ? _b : 1136;
             if (pull_number === -1) {
                 throw new Error('Invalid PR number');
             }
+            // This is the output of the Laravel Pint command
+            //
+            //  --test - meaning no changes
+            //  --preset=psr12 - meaning PSR12 preset
+            //  -v - meaning verbose so that we can get the diff as well
+            //  --format=json - meaning we want the output in JSON format
+            //
+            // ./vendor/bin/pint $1
+            //    --test
+            //    --preset=psr12
+            //    -v
+            //    --format=json
             const json = JSON.parse(core.getInput('json_output'));
             if (json.totals.errors === 0) {
                 yield octokit.rest.pulls.createReview({
@@ -214,15 +230,15 @@ run();
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.transformOutputToFeedback = void 0;
 function transformOutputToFeedback(outputs) {
-    return Object.entries(outputs)
-        .filter((file) => {
-        return Object.keys(file[1]).includes('errors');
-    })
-        .map((file) => {
-        const [path, feedback] = [file[0], file[1]];
+    return Object.entries(outputs).map((file) => {
+        const [path, feedback] = [file[1].name, file[1]];
+        const errors = {
+            diff: feedback.diff,
+            applied_fixers: feedback.appliedFixers
+        };
         return {
             path,
-            feedback: feedback.errors
+            feedback: errors
         };
     });
 }
@@ -6583,289 +6599,11 @@ function onceStrict (fn) {
 
 /***/ }),
 
-/***/ 9092:
-/***/ (function(module) {
+/***/ 4833:
+/***/ ((module) => {
 
-(function (global, factory) {
-     true ? module.exports = factory() :
-    0;
-})(this, (function () { 'use strict';
-
-    class Context {
-        constructor(diff) {
-            this.line = 1;
-            this.lines = [];
-            this.lines = diff.split('\n');
-        }
-        getCurLine() {
-            return this.lines[this.line - 1];
-        }
-        nextLine() {
-            this.line++;
-            return this.getCurLine();
-        }
-        isEof() {
-            return this.line > this.lines.length;
-        }
-    }
-
-    const LineType = {
-        Added: 'AddedLine',
-        Deleted: 'DeletedLine',
-        Unchanged: 'UnchangedLine',
-    };
-    const FileType = {
-        Changed: 'ChangedFile',
-        Added: 'AddedFile',
-        Deleted: 'DeletedFile',
-        Renamed: 'RenamedFile',
-    };
-    const ExtendedHeader = {
-        Index: 'index',
-        Old: 'old',
-        Copy: 'copy',
-        Similarity: 'similarity',
-        Dissimilarity: 'dissimilarity',
-        Deleted: 'deleted',
-        NewFile: 'new file',
-        RenameFrom: 'rename from',
-        RenameTo: 'rename to',
-    };
-    const ExtendedHeaderValues = Object.values(ExtendedHeader);
-
-    function parseGitDiff(diff) {
-        const ctx = new Context(diff);
-        const files = parseFileChanges(ctx);
-        return {
-            type: 'GitDiff',
-            files,
-        };
-    }
-    function parseFileChanges(ctx) {
-        const changedFiles = [];
-        while (!ctx.isEof()) {
-            const changed = parseFileChange(ctx);
-            if (!changed) {
-                break;
-            }
-            changedFiles.push(changed);
-        }
-        return changedFiles;
-    }
-    function parseFileChange(ctx) {
-        if (!isComparisonInputLine(ctx.getCurLine())) {
-            return;
-        }
-        ctx.nextLine();
-        let isDeleted = false;
-        let isNew = false;
-        let isRename = false;
-        let pathBefore = '';
-        let pathAfter = '';
-        while (!ctx.isEof()) {
-            const extHeader = parseExtendedHeader(ctx);
-            if (!extHeader) {
-                break;
-            }
-            if (extHeader.type === ExtendedHeader.Deleted)
-                isDeleted = true;
-            if (extHeader.type === ExtendedHeader.NewFile)
-                isNew = true;
-            if (extHeader.type === ExtendedHeader.RenameFrom) {
-                isRename = true;
-                pathBefore = extHeader.path;
-            }
-            if (extHeader.type === ExtendedHeader.RenameTo) {
-                isRename = true;
-                pathAfter = extHeader.path;
-            }
-        }
-        const changeMarkers = parseChangeMarkers(ctx);
-        const chunks = parseChunks(ctx);
-        if (isDeleted && changeMarkers) {
-            return {
-                type: FileType.Deleted,
-                chunks,
-                path: changeMarkers.deleted,
-            };
-        }
-        else if (isNew && changeMarkers) {
-            return {
-                type: FileType.Added,
-                chunks,
-                path: changeMarkers.added,
-            };
-        }
-        else if (isRename) {
-            return {
-                type: FileType.Renamed,
-                pathAfter,
-                pathBefore,
-                chunks,
-            };
-        }
-        else if (changeMarkers) {
-            return {
-                type: FileType.Changed,
-                chunks,
-                path: changeMarkers.added,
-            };
-        }
-        return;
-    }
-    function isComparisonInputLine(line) {
-        return line.indexOf('diff') === 0;
-    }
-    function parseChunks(context) {
-        const chunks = [];
-        while (!context.isEof()) {
-            const chunk = parseChunk(context);
-            if (!chunk) {
-                break;
-            }
-            chunks.push(chunk);
-        }
-        return chunks;
-    }
-    function parseChunk(context) {
-        const chunkHeader = parseChunkHeader(context);
-        if (!chunkHeader) {
-            return;
-        }
-        if (chunkHeader.type === 'Normal') {
-            const changes = parseChanges(context, chunkHeader.fromFileRange, chunkHeader.toFileRange);
-            return Object.assign(Object.assign({}, chunkHeader), { type: 'Chunk', changes });
-        }
-        else if (chunkHeader.type === 'Combined' &&
-            chunkHeader.fromFileRangeA &&
-            chunkHeader.fromFileRangeB) {
-            const changes = parseChanges(context, chunkHeader.fromFileRangeA.start < chunkHeader.fromFileRangeB.start
-                ? chunkHeader.fromFileRangeA
-                : chunkHeader.fromFileRangeB, chunkHeader.toFileRange);
-            return Object.assign(Object.assign({}, chunkHeader), { type: 'CombinedChunk', changes });
-        }
-    }
-    function parseExtendedHeader(ctx) {
-        const line = ctx.getCurLine();
-        const type = ExtendedHeaderValues.find((v) => line.startsWith(v));
-        if (type) {
-            ctx.nextLine();
-        }
-        if (type === ExtendedHeader.RenameFrom || type === ExtendedHeader.RenameTo) {
-            return {
-                type,
-                path: line.slice(`${type} `.length),
-            };
-        }
-        else if (type) {
-            return {
-                type,
-            };
-        }
-        return null;
-    }
-    function parseChunkHeader(ctx) {
-        const line = ctx.getCurLine();
-        const normalChunkExec = /^@@\s\-(\d+),?(\d+)?\s\+(\d+),?(\d+)?\s@@/.exec(line);
-        if (!normalChunkExec) {
-            const combinedChunkExec = /^@@@\s\-(\d+),?(\d+)?\s\-(\d+),?(\d+)?\s\+(\d+),?(\d+)?\s@@@/.exec(line);
-            if (!combinedChunkExec) {
-                return null;
-            }
-            const [all, delStartA, delLinesA, delStartB, delLinesB, addStart, addLines,] = combinedChunkExec;
-            ctx.nextLine();
-            return {
-                type: 'Combined',
-                fromFileRangeA: getRange(delStartA, delLinesA),
-                fromFileRangeB: getRange(delStartB, delLinesB),
-                toFileRange: getRange(addStart, addLines),
-            };
-        }
-        const [all, delStart, delLines, addStart, addLines] = normalChunkExec;
-        ctx.nextLine();
-        return {
-            type: 'Normal',
-            toFileRange: getRange(addStart, addLines),
-            fromFileRange: getRange(delStart, delLines),
-        };
-    }
-    function getRange(start, lines) {
-        const startNum = parseInt(start, 10);
-        return {
-            start: startNum,
-            lines: lines === undefined ? startNum : parseInt(lines, 10),
-        };
-    }
-    function parseChangeMarkers(context) {
-        var _a, _b;
-        const deleted = (_a = parseMarker(context, '--- ')) === null || _a === void 0 ? void 0 : _a.replace('a/', '');
-        const added = (_b = parseMarker(context, '+++ ')) === null || _b === void 0 ? void 0 : _b.replace('b/', '');
-        return added && deleted ? { added, deleted } : null;
-    }
-    function parseMarker(context, marker) {
-        const line = context.getCurLine();
-        if (line === null || line === void 0 ? void 0 : line.startsWith(marker)) {
-            context.nextLine();
-            return line.replace(marker, '');
-        }
-        return null;
-    }
-    const CHAR_TYPE_MAP = {
-        '+': LineType.Added,
-        '-': LineType.Deleted,
-        ' ': LineType.Unchanged,
-    };
-    function parseChanges(ctx, rangeBefore, rangeAfter) {
-        const changes = [];
-        let lineBefore = rangeBefore.start;
-        let lineAfter = rangeAfter.start;
-        while (!ctx.isEof()) {
-            const line = ctx.getCurLine();
-            const type = getLineType(line);
-            if (!type) {
-                break;
-            }
-            ctx.nextLine();
-            let change;
-            const content = line.slice(1);
-            switch (type) {
-                case LineType.Added: {
-                    change = {
-                        type,
-                        lineAfter: lineAfter++,
-                        content,
-                    };
-                    break;
-                }
-                case LineType.Deleted: {
-                    change = {
-                        type,
-                        lineBefore: lineBefore++,
-                        content,
-                    };
-                    break;
-                }
-                case LineType.Unchanged: {
-                    change = {
-                        type,
-                        lineBefore: lineBefore++,
-                        lineAfter: lineAfter++,
-                        content,
-                    };
-                    break;
-                }
-            }
-            changes.push(change);
-        }
-        return changes;
-    }
-    function getLineType(line) {
-        return CHAR_TYPE_MAP[line[0]] || null;
-    }
-
-    return parseGitDiff;
-
-}));
+"use strict";
+function _createForOfIteratorHelper(o,allowArrayLike){var it=typeof Symbol!=="undefined"&&o[Symbol.iterator]||o["@@iterator"];if(!it){if(Array.isArray(o)||(it=_unsupportedIterableToArray(o))||allowArrayLike&&o&&typeof o.length==="number"){if(it)o=it;var i=0;var F=function F(){};return{s:F,n:function n(){if(i>=o.length)return{done:true};return{done:false,value:o[i++]}},e:function e(_e2){throw _e2},f:F}}throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.")}var normalCompletion=true,didErr=false,err;return{s:function s(){it=it.call(o)},n:function n(){var step=it.next();normalCompletion=step.done;return step},e:function e(_e3){didErr=true;err=_e3},f:function f(){try{if(!normalCompletion&&it["return"]!=null)it["return"]()}finally{if(didErr)throw err}}}}function _defineProperty(obj,key,value){if(key in obj){Object.defineProperty(obj,key,{value:value,enumerable:true,configurable:true,writable:true})}else{obj[key]=value}return obj}function _slicedToArray(arr,i){return _arrayWithHoles(arr)||_iterableToArrayLimit(arr,i)||_unsupportedIterableToArray(arr,i)||_nonIterableRest()}function _nonIterableRest(){throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.")}function _unsupportedIterableToArray(o,minLen){if(!o)return;if(typeof o==="string")return _arrayLikeToArray(o,minLen);var n=Object.prototype.toString.call(o).slice(8,-1);if(n==="Object"&&o.constructor)n=o.constructor.name;if(n==="Map"||n==="Set")return Array.from(o);if(n==="Arguments"||/^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n))return _arrayLikeToArray(o,minLen)}function _arrayLikeToArray(arr,len){if(len==null||len>arr.length)len=arr.length;for(var i=0,arr2=new Array(len);i<len;i++){arr2[i]=arr[i]}return arr2}function _iterableToArrayLimit(arr,i){var _i=arr==null?null:typeof Symbol!=="undefined"&&arr[Symbol.iterator]||arr["@@iterator"];if(_i==null)return;var _arr=[];var _n=true;var _d=false;var _s,_e;try{for(_i=_i.call(arr);!(_n=(_s=_i.next()).done);_n=true){_arr.push(_s.value);if(i&&_arr.length===i)break}}catch(err){_d=true;_e=err}finally{try{if(!_n&&_i["return"]!=null)_i["return"]()}finally{if(_d)throw _e}}return _arr}function _arrayWithHoles(arr){if(Array.isArray(arr))return arr}module.exports=function(input){if(!input)return[];if(typeof input!=="string"||input.match(/^\s+$/))return[];var lines=input.split("\n");if(lines.length===0)return[];var files=[];var currentFile=null;var currentChunk=null;var deletedLineCounter=0;var addedLineCounter=0;var currentFileChanges=null;var normal=function normal(line){var _currentChunk;(_currentChunk=currentChunk)===null||_currentChunk===void 0?void 0:_currentChunk.changes.push({type:"normal",normal:true,ln1:deletedLineCounter++,ln2:addedLineCounter++,content:line});currentFileChanges.oldLines--;currentFileChanges.newLines--};var start=function start(line){var _parseFiles;var _ref=(_parseFiles=parseFiles(line))!==null&&_parseFiles!==void 0?_parseFiles:[],_ref2=_slicedToArray(_ref,2),fromFileName=_ref2[0],toFileName=_ref2[1];currentFile={chunks:[],deletions:0,additions:0,from:fromFileName,to:toFileName};files.push(currentFile)};var restart=function restart(){if(!currentFile||currentFile.chunks.length)start()};var newFile=function newFile(_,match){restart();currentFile["new"]=true;currentFile.newMode=match[1];currentFile.from="/dev/null"};var deletedFile=function deletedFile(_,match){restart();currentFile.deleted=true;currentFile.oldMode=match[1];currentFile.to="/dev/null"};var oldMode=function oldMode(_,match){restart();currentFile.oldMode=match[1]};var newMode=function newMode(_,match){restart();currentFile.newMode=match[1]};var index=function index(line,match){restart();currentFile.index=line.split(" ").slice(1);if(match[1]){currentFile.oldMode=currentFile.newMode=match[1].trim()}};var fromFile=function fromFile(line){restart();currentFile.from=parseOldOrNewFile(line)};var toFile=function toFile(line){restart();currentFile.to=parseOldOrNewFile(line)};var toNumOfLines=function toNumOfLines(number){return+(number||1)};var chunk=function chunk(line,match){if(!currentFile)return;var _match$slice=match.slice(1),_match$slice2=_slicedToArray(_match$slice,4),oldStart=_match$slice2[0],oldNumLines=_match$slice2[1],newStart=_match$slice2[2],newNumLines=_match$slice2[3];deletedLineCounter=+oldStart;addedLineCounter=+newStart;currentChunk={content:line,changes:[],oldStart:+oldStart,oldLines:toNumOfLines(oldNumLines),newStart:+newStart,newLines:toNumOfLines(newNumLines)};currentFileChanges={oldLines:toNumOfLines(oldNumLines),newLines:toNumOfLines(newNumLines)};currentFile.chunks.push(currentChunk)};var del=function del(line){if(!currentChunk)return;currentChunk.changes.push({type:"del",del:true,ln:deletedLineCounter++,content:line});currentFile.deletions++;currentFileChanges.oldLines--};var add=function add(line){if(!currentChunk)return;currentChunk.changes.push({type:"add",add:true,ln:addedLineCounter++,content:line});currentFile.additions++;currentFileChanges.newLines--};var eof=function eof(line){var _currentChunk$changes3;if(!currentChunk)return;var _currentChunk$changes=currentChunk.changes.slice(-1),_currentChunk$changes2=_slicedToArray(_currentChunk$changes,1),mostRecentChange=_currentChunk$changes2[0];currentChunk.changes.push((_currentChunk$changes3={type:mostRecentChange.type},_defineProperty(_currentChunk$changes3,mostRecentChange.type,true),_defineProperty(_currentChunk$changes3,"ln1",mostRecentChange.ln1),_defineProperty(_currentChunk$changes3,"ln2",mostRecentChange.ln2),_defineProperty(_currentChunk$changes3,"ln",mostRecentChange.ln),_defineProperty(_currentChunk$changes3,"content",line),_currentChunk$changes3))};var schemaHeaders=[[/^diff\s/,start],[/^new file mode (\d+)$/,newFile],[/^deleted file mode (\d+)$/,deletedFile],[/^old mode (\d+)$/,oldMode],[/^new mode (\d+)$/,newMode],[/^index\s[\da-zA-Z]+\.\.[\da-zA-Z]+(\s(\d+))?$/,index],[/^---\s/,fromFile],[/^\+\+\+\s/,toFile],[/^@@\s+-(\d+),?(\d+)?\s+\+(\d+),?(\d+)?\s@@/,chunk],[/^\\ No newline at end of file$/,eof]];var schemaContent=[[/^\\ No newline at end of file$/,eof],[/^-/,del],[/^\+/,add],[/^\s+/,normal]];var parseContentLine=function parseContentLine(line){var _iterator=_createForOfIteratorHelper(schemaContent),_step;try{for(_iterator.s();!(_step=_iterator.n()).done;){var _step$value=_slicedToArray(_step.value,2),pattern=_step$value[0],handler=_step$value[1];var match=line.match(pattern);if(match){handler(line,match);break}}}catch(err){_iterator.e(err)}finally{_iterator.f()}if(currentFileChanges.oldLines===0&&currentFileChanges.newLines===0){currentFileChanges=null}};var parseHeaderLine=function parseHeaderLine(line){var _iterator2=_createForOfIteratorHelper(schemaHeaders),_step2;try{for(_iterator2.s();!(_step2=_iterator2.n()).done;){var _step2$value=_slicedToArray(_step2.value,2),pattern=_step2$value[0],handler=_step2$value[1];var match=line.match(pattern);if(match){handler(line,match);break}}}catch(err){_iterator2.e(err)}finally{_iterator2.f()}};var parseLine=function parseLine(line){if(currentFileChanges){parseContentLine(line)}else{parseHeaderLine(line)}return};var _iterator3=_createForOfIteratorHelper(lines),_step3;try{for(_iterator3.s();!(_step3=_iterator3.n()).done;){var line=_step3.value;parseLine(line)}}catch(err){_iterator3.e(err)}finally{_iterator3.f()}return files};var fileNameDiffRegex=/(a|i|w|c|o|1|2)\/.*(?=["']? ["']?(b|i|w|c|o|1|2)\/)|(b|i|w|c|o|1|2)\/.*$/g;var gitFileHeaderRegex=/^(a|b|i|w|c|o|1|2)\//;var parseFiles=function parseFiles(line){var fileNames=line===null||line===void 0?void 0:line.match(fileNameDiffRegex);return fileNames===null||fileNames===void 0?void 0:fileNames.map(function(fileName){return fileName.replace(gitFileHeaderRegex,"").replace(/("|')$/,"")})};var qoutedFileNameRegex=/^\\?['"]|\\?['"]$/g;var parseOldOrNewFile=function parseOldOrNewFile(line){var fileName=leftTrimChars(line,"-+").trim();fileName=removeTimeStamp(fileName);return fileName.replace(qoutedFileNameRegex,"").replace(gitFileHeaderRegex,"")};var leftTrimChars=function leftTrimChars(string,trimmingChars){string=makeString(string);if(!trimmingChars&&String.prototype.trimLeft)return string.trimLeft();var trimmingString=formTrimmingString(trimmingChars);return string.replace(new RegExp("^".concat(trimmingString,"+")),"")};var timeStampRegex=/\t.*|\d{4}-\d\d-\d\d\s\d\d:\d\d:\d\d(.\d+)?\s(\+|-)\d\d\d\d/;var removeTimeStamp=function removeTimeStamp(string){var timeStamp=timeStampRegex.exec(string);if(timeStamp){string=string.substring(0,timeStamp.index).trim()}return string};var formTrimmingString=function formTrimmingString(trimmingChars){if(trimmingChars===null||trimmingChars===undefined)return"\\s";else if(trimmingChars instanceof RegExp)return trimmingChars.source;return"[".concat(makeString(trimmingChars).replace(/([.*+?^=!:${}()|[\]/\\])/g,"\\$1"),"]")};var makeString=function makeString(itemToConvert){return(itemToConvert!==null&&itemToConvert!==void 0?itemToConvert:"")+""};
 
 
 /***/ }),
