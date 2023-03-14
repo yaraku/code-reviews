@@ -121,9 +121,9 @@ function run() {
                                 + "```",
                             side: 'RIGHT',
                             start_side: 'RIGHT',
-                            // // start_line: foundFile.start >= hunk.newStart ? foundFile.start : hunk.newStart,
-                            line: foundFile.start >= hunk.newStart ? foundFile.start : hunk.newStart,
-                            // line: foundFile.end <= (hunk.newStart + hunk.newLines - 1) ? foundFile.end : (hunk.newStart + hunk.newLines - 1),
+                            start_line: foundFile.start >= hunk.newStart ? foundFile.start : hunk.newStart,
+                            // line: foundFile.start >= hunk.newStart ? foundFile.start : hunk.newStart,
+                            line: foundFile.end <= (hunk.newStart + hunk.newLines - 1) ? foundFile.end : (hunk.newStart + hunk.newLines - 1),
                         };
                     })
                 ].flat();
