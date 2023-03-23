@@ -1,9 +1,7 @@
 import * as core from '@actions/core'
 import * as github from '@actions/github'
-import {Feedback} from './types'
-import {getComments} from './get-comments'
-import {transformOutputToFeedback} from './transform-output-to-feedback'
-import {filterOutOfContextCode} from './filter-out-of-context-code'
+import { parseComment } from './parse-comment'
+import { Comment } from './types'
 const Diff = require('diff')
 
 async function run(): Promise<void> {
@@ -53,11 +51,6 @@ async function run(): Promise<void> {
       }
     })
 
-    // const diff = 
-
-    // const files: Feedback[] = transformOutputToFeedback(json.files)
-    // const comments = getComments(filterOutOfContextCode(files, diff))
-
     json = Diff.parsePatch(json.files.map((f: any) => f.diff).join('\n'))
     const diff = Diff.parsePatch(data as unknown as string)
   
@@ -74,7 +67,7 @@ async function run(): Promise<void> {
       }
     })
   
-    const comments = json.filter((file: any) => {
+    const comments: Comment[] = json.filter((file: any) => {
       return files.find((f:any) => file.newFileName.includes(f.path)) !== undefined
     }).map((file: any) => {
       const foundFile = files.find((f:any) => file.newFileName.includes(f.path))
@@ -92,20 +85,7 @@ async function run(): Promise<void> {
       const foundFile = files.find((f:any) => file.newFileName.includes(f.path))
   
       return [
-        file.hunks.map((hunk: any) => {
-          return {
-            path: foundFile.path,
-            body: "```diff\n"
-            + hunk.lines.join('\n')
-            + "\n"
-            + "```",
-            side: 'RIGHT',
-            start_side: 'RIGHT',
-            start_line: foundFile.start >= hunk.newStart ? foundFile.start : hunk.newStart,
-            // line: foundFile.start >= hunk.newStart ? foundFile.start : hunk.newStart,
-            line: foundFile.end <= (hunk.newStart + hunk.newLines - 1) ? foundFile.end : (hunk.newStart + hunk.newLines - 1),
-          }
-        })
+        file.hunks.map(parseComment(foundFile))
       ].flat()
     }).flat()
 

@@ -1,0 +1,37 @@
+{
+  "files":[
+    {
+      "name":"\/Users\/yaraku\/Projects\/zen\/tests\/Integration\/OOXml\/Preview\/OOXmlPreviewFactoryTest.php",
+      "appliedFixers":[
+        "blank_line_after_opening_tag"
+      ],
+      "diff":"--- \/Users\/yaraku\/Projects\/zen\/tests\/Integration\/OOXml\/Preview\/OOXmlPreviewFactoryTest.php\n+++ \/Users\/yaraku\/Projects\/zen\/tests\/Integration\/OOXml\/Preview\/OOXmlPreviewFactoryTest.php\n@@ -1,4 +1,6 @@\n-<?php namespace Tests\\Integration\\OOXml\\Preview;\n+<?php\n+\n+namespace Tests\\Integration\\OOXml\\Preview;\n \n use App\\Providers\\OOXmlServiceProvider;\n use App\\Services\\Document;\n"
+    },
+    {
+      "name":"\/Users\/yaraku\/Projects\/zen\/tests\/Integration\/Pdf\/PdfExport\/PdfExporterTest.php",
+      "appliedFixers":[
+        "blank_line_after_opening_tag"
+      ],
+      "diff":"--- \/Users\/yaraku\/Projects\/zen\/tests\/Integration\/Pdf\/PdfExport\/PdfExporterTest.php\n+++ \/Users\/yaraku\/Projects\/zen\/tests\/Integration\/Pdf\/PdfExport\/PdfExporterTest.php\n@@ -1,4 +1,6 @@\n-<?php namespace Tests\\Integration\\Pdf\\PdfExport;\n+<?php\n+\n+namespace Tests\\Integration\\Pdf\\PdfExport;\n \n use App\\DBModels;\n use App\\Services\\Document;\n"
+    },
+    {
+      "name":"\/Users\/yaraku\/Projects\/zen\/tests\/Integration\/Segment\/Export\/TextDocument\/TextDocumentPreviewFactoryTest.php",
+      "appliedFixers":[
+        "blank_line_after_opening_tag",
+        "no_unused_imports"
+      ],
+      "diff":"--- \/Users\/yaraku\/Projects\/zen\/tests\/Integration\/Segment\/Export\/TextDocument\/TextDocumentPreviewFactoryTest.php\n+++ \/Users\/yaraku\/Projects\/zen\/tests\/Integration\/Segment\/Export\/TextDocument\/TextDocumentPreviewFactoryTest.php\n@@ -1,12 +1,12 @@\n-<?php namespace Tests\\Integration\\Segment\\Export\\TextDocument;\n+<?php\n \n+namespace Tests\\Integration\\Segment\\Export\\TextDocument;\n+\n use App\\Services\\Document;\n use App\\Services\\File;\n use App\\Services\\FileExport;\n-use App\\Services\\Html;\n use App\\Services\\Segment\\Export\\TextDocument;\n use Mockery;\n-use Tests;\n use Tests\\Integration\\Fixtures;\n \n \/**\n"
+    },
+    {
+      "name":"\/Users\/yaraku\/Projects\/zen\/tests\/Integration\/Segment\/TextFormat\/Attribute\/HtmlWrapperTest.php",
+      "appliedFixers":[
+        "blank_line_after_opening_tag"
+      ],
+      "diff":"--- \/Users\/yaraku\/Projects\/zen\/tests\/Integration\/Segment\/TextFormat\/Attribute\/HtmlWrapperTest.php\n+++ \/Users\/yaraku\/Projects\/zen\/tests\/Integration\/Segment\/TextFormat\/Attribute\/HtmlWrapperTest.php\n@@ -1,4 +1,6 @@\n-<?php namespace Tests\\Integration\\Segment\\TextFormat\\Attribute;\n+<?php\n+\n+namespace Tests\\Integration\\Segment\\TextFormat\\Attribute;\n \n use App\\Services\\Segment;\n use Mockery;\n"
+    }
+  ],
+  "time":{
+    "total":0
+  },
+  "memory":0
+}

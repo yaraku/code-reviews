@@ -1,24 +1,32 @@
-export type ECSError = {
-  message: string
-  line: number
-  file_path: string
-  source_class: string
-}
-
-export type PintError = {
-  diff: string
-  applied_fixers: string[]
-}
-
 export type Comment = {
   path: string
+  position?: number | undefined
   body: string
-  side: string
-  start_side: string
-  line: number
+  line?: number | undefined
+  side?: string | undefined
+  start_line?: number | undefined
+  start_side?: string | undefined
 }
 
-export type Feedback = {
-  path: string
-  feedback: ECSError | PintError
+export type File = {
+  name: string
+  appliedFixers: string[]
+  diff: string
+}
+
+export type PatchDiff = {
+  oldFileName: string
+  newFileName: string
+  oldHeader: string
+  newHeader: string
+  hunks: Hunk[]
+}
+
+export type Hunk = {
+  oldStart: number
+  oldLines: number
+  newStart: number
+  newLines: number
+  lines: string[]
+  linedelimiters: string[]
 }
