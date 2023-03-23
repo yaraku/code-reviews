@@ -1,0 +1,20 @@
+{
+  "files":[
+    {
+      "name":"\/github\/workspace\/ecs-test-file.php",
+      "appliedFixers":[
+        "visibility_required",
+        "class_definition",
+        "single_trait_insert_per_statement",
+        "braces",
+        "function_declaration",
+        "compact_nullable_typehint"
+      ],
+      "diff":"--- \/github\/workspace\/ecs-test-file.php\n+++ \/github\/workspace\/ecs-test-file.php\n@@ -6,14 +6,17 @@\n     ClassZ,\n };\n \n-class ClassName extends ParentClass implements \\ArrayAccess, \\Countable, \\Serializable {\n-    use First, Second, Third;\n+class ClassName extends ParentClass implements \\ArrayAccess, \\Countable, \\Serializable\n+{\n+    use First;\n+    use Second;\n+    use Third;\n \n-    var $_foo;\n+    public $_foo;\n \n-    function _myFunc (\n+    public function _myFunc(\n         int $arg = 0,\n         $arg2,\n-    ): ? bool{\n+    ): ?bool {\n     }\n }\n"
+    }
+  ],
+  "time":{
+    "total":0
+  },
+  "memory":0
+}

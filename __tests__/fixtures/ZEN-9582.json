@@ -1,0 +1,15 @@
+{
+  "files":[
+    {
+      "name":"\/Users\/yaraku\/Projects\/zen\/tests\/Integration\/Company\/CompanyUserStatsExportControllerTest.php",
+      "appliedFixers":[
+        "new_with_braces"
+      ],
+      "diff":"--- \/Users\/yaraku\/Projects\/zen\/tests\/Integration\/Company\/CompanyUserStatsExportControllerTest.php\n+++ \/Users\/yaraku\/Projects\/zen\/tests\/Integration\/Company\/CompanyUserStatsExportControllerTest.php\n@@ -37,7 +37,7 @@\n         $users = UserFixture::createMultiple(3);\n         Auth::login($compAdmin);\n \n-        (new CompanyFixture)->withAdmins([$compAdmin])->withUsers($users);\n+        (new CompanyFixture())->withAdmins([$compAdmin])->withUsers($users);\n \n         $this->requestBuilder\n             ->startDate($this->thisMonth)\n@@ -56,7 +56,7 @@\n         $users = UserFixture::createMultiple(3);\n         Auth::login($compAdmin);\n \n-        (new CompanyFixture)->withAdmins([$compAdmin])->withUsers($users);\n+        (new CompanyFixture())->withAdmins([$compAdmin])->withUsers($users);\n \n         $this->requestBuilder\n             ->startDate($this->thisMonth)\n@@ -75,7 +75,7 @@\n         $users = UserFixture::createMultiple(3);\n         Auth::login($compAdmin);\n \n-        (new CompanyFixture)->withAdmins([$compAdmin])->withUsers($users);\n+        (new CompanyFixture())->withAdmins([$compAdmin])->withUsers($users);\n \n         Auth::logout();\n         Auth::login($users[0]);\n@@ -97,7 +97,7 @@\n         $users = UserFixture::createMultiple(3);\n         Auth::login($compAdmin);\n \n-        (new CompanyFixture)->withAdmins([$compAdmin])->withUsers($users);\n+        (new CompanyFixture())->withAdmins([$compAdmin])->withUsers($users);\n \n         Auth::logout();\n \n"
+    }
+  ],
+  "time":{
+    "total":0
+  },
+  "memory":0
+}
