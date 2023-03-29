@@ -33,7 +33,7 @@ async function run(): Promise<void> {
     //    --format=json
     const json = JSON.parse(core.getInput('json_output'))
 
-    if (core.getInput('json_output') === '{"files":[],"time":{"total":0},"memory":0}'
+    if (JSON.stringify(core.getInput('json_output')) === '{"files":[],"time":{"total":0},"memory":0}'
     || json.files.length === 0) {
       await octokit.rest.pulls.createReview({
         owner,
