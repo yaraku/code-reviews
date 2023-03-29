@@ -13,7 +13,7 @@ async function run(): Promise<void> {
     const context = github.context
 
     const {owner, repo} = context.repo
-    const pull_number = context.payload.pull_request?.number ?? 1136
+    const pull_number = context.payload.pull_request?.number ?? 0
 
     if (pull_number === -1) {
       throw new Error('Invalid PR number')
@@ -33,8 +33,8 @@ async function run(): Promise<void> {
     //    --format=json
     const json = JSON.parse(core.getInput('json_output'))
 
-    if (json.files.length === 0) {
-      core.info('yes!')
+    if (core.getInput('json_output') === '{"files":[],"time":{"total":0},"memory":0}'
+    || json.files.length === 0) {
       await octokit.rest.pulls.createReview({
         owner,
         repo,
@@ -44,8 +44,6 @@ async function run(): Promise<void> {
 
       return
     }
-
-    core.info(json)
 
     const {data} = await octokit.rest.pulls.get({
       owner,
