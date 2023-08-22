@@ -4,7 +4,7 @@ import * as github from '@actions/github'
 import {Comment} from './types'
 import {parseComment} from './parse-comment'
 
-async function run(): Promise<void> {
+export async function run(): Promise<void> {
   try {
     const token = core.getInput('token')
     // API: https://actions-cool.github.io/octokit-rest/

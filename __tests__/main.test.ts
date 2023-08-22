@@ -4,8 +4,8 @@ import {normalizeFile} from '../src/normalize-file'
 import {squashHunks} from '../src/squash-hunks'
 import {filterFiles} from '../src/filter-files'
 import { File, PatchDiff } from '../src/types'
-
-const Diff = require('diff')
+import { run as runMain } from '../src/main'
+import * as Diff from 'diff'
 
 import * as ZEN9582_json from './fixtures/ZEN-9582.json'
 import * as ZEN10274_PR1136_json from './fixtures/ZEN-10274-PR-1136.json'
@@ -16,6 +16,9 @@ import * as ZEN10261_PR1106_json from './fixtures/ZEN-10261-PR-1106.json'
 import {diff as ZEN10261_PR1106_diff} from './fixtures/ZEN-10261-PR-1106.diff'
 
 describe('Pull requests', () => {
+  test('runs successfully', async () => {
+    await expect(runMain()).resolves.not.toThrow()
+  })
   test('ZEN-10261 PR-1106', () => {
     const comments = run(ZEN10261_PR1106_json, ZEN10261_PR1106_diff)
 
