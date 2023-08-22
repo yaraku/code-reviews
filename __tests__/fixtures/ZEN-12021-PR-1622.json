@@ -1,0 +1,57 @@
+{
+   "files":[
+      {
+         "name":"\/github\/workspace\/app\/Exceptions\/UserIPAddressNotAllowedException.php",
+         "appliedFixers":[
+            "braces"
+         ],
+         "diff":"--- \/github\/workspace\/app\/Exceptions\/UserIPAddressNotAllowedException.php\n+++ \/github\/workspace\/app\/Exceptions\/UserIPAddressNotAllowedException.php\n@@ -18,7 +18,6 @@\n     {\n         parent::__construct();\n         $this->ipAddress = $ipAddress;\n-\n     }\n \n     public function getIpAddress(): string\n"
+      },
+      {
+         "name":"\/github\/workspace\/app\/Http\/Requests\/Scim\/MembersAttributeRequest.php",
+         "appliedFixers":[
+            "method_argument_space"
+         ],
+         "diff":"--- \/github\/workspace\/app\/Http\/Requests\/Scim\/MembersAttributeRequest.php\n+++ \/github\/workspace\/app\/Http\/Requests\/Scim\/MembersAttributeRequest.php\n@@ -45,7 +45,10 @@\n     {\n         $username = null;\n         if (preg_match(\n-            '\/userName eq \\\"([a-z0-9_.\\-@]*)\\\"\/i', $this->get('filter'), $matches) === 1) {\n+            '\/userName eq \\\"([a-z0-9_.\\-@]*)\\\"\/i',\n+            $this->get('filter'),\n+            $matches\n+        ) === 1) {\n             $username = $matches[1];\n         }\n         return $username;\n"
+      },
+      {
+         "name":"\/github\/workspace\/app\/Http\/Requests\/Scim\/UpdateMemberAttributeRequest.php",
+         "appliedFixers":[
+            "function_declaration"
+         ],
+         "diff":"--- \/github\/workspace\/app\/Http\/Requests\/Scim\/UpdateMemberAttributeRequest.php\n+++ \/github\/workspace\/app\/Http\/Requests\/Scim\/UpdateMemberAttributeRequest.php\n@@ -29,7 +29,7 @@\n     public function getOperations(): array\n     {\n         return array_map(\n-            static fn($operation) => new Operation(\n+            static fn ($operation) => new Operation(\n                 $operation['path'],\n                 $operation['value']\n             ),\n"
+      },
+      {
+         "name":"\/github\/workspace\/app\/Services\/Scim\/Transformers\/ScimCompanyMemberTransformer.php",
+         "appliedFixers":[
+            "braces"
+         ],
+         "diff":"--- \/github\/workspace\/app\/Services\/Scim\/Transformers\/ScimCompanyMemberTransformer.php\n+++ \/github\/workspace\/app\/Services\/Scim\/Transformers\/ScimCompanyMemberTransformer.php\n@@ -23,13 +23,15 @@\n         $this->availableIncludes = self::SCIM_FILTERS;\n     }\n \n-    public function transform(User $member): array {\n+    public function transform(User $member): array\n+    {\n         return [\n             'id' => $member->id,\n         ];\n     }\n \n-    public function includeSchemas(): Primitive {\n+    public function includeSchemas(): Primitive\n+    {\n         return $this->primitive(['urn:ietf:params:scim:schemas:extension:enterprise:2.0:User']);\n     }\n \n"
+      },
+      {
+         "name":"\/github\/workspace\/app\/Services\/User\/Password\/Generator.php",
+         "appliedFixers":[
+            "method_argument_space"
+         ],
+         "diff":"--- \/github\/workspace\/app\/Services\/User\/Password\/Generator.php\n+++ \/github\/workspace\/app\/Services\/User\/Password\/Generator.php\n@@ -14,7 +14,8 @@\n         $special = array_flip(str_split('!@#$%^&*()_+=-}{[}]\\|;:<>?\/'));\n         $combined = array_merge($digits, $lowercase, $uppercase, $special);\n \n-        return str_shuffle(array_rand($digits) .\n+        return str_shuffle(\n+            array_rand($digits) .\n             array_rand($lowercase) .\n             array_rand($uppercase) .\n             array_rand($special) .\n"
+      },
+      {
+         "name":"\/github\/workspace\/app\/Services\/User\/UserCreatorFactory.php",
+         "appliedFixers":[
+            "blank_line_after_opening_tag"
+         ],
+         "diff":"--- \/github\/workspace\/app\/Services\/User\/UserCreatorFactory.php\n+++ \/github\/workspace\/app\/Services\/User\/UserCreatorFactory.php\n@@ -1,4 +1,6 @@\n-<?php namespace App\\Services\\User;\n+<?php\n+\n+namespace App\\Services\\User;\n \n use App\\DBModels;\n use App\\Repositories;\n"
+      },
+      {
+         "name":"\/github\/workspace\/tests\/Integration\/Users\/UserController\/Creator\/UserFactoryCreatorTest.php",
+         "appliedFixers":[
+            "blank_line_after_opening_tag"
+         ],
+         "diff":"--- \/github\/workspace\/tests\/Integration\/Users\/UserController\/Creator\/UserFactoryCreatorTest.php\n+++ \/github\/workspace\/tests\/Integration\/Users\/UserController\/Creator\/UserFactoryCreatorTest.php\n@@ -1,4 +1,6 @@\n-<?php namespace Tests\\Integration\\Users\\UserController\\Creator;\n+<?php\n+\n+namespace Tests\\Integration\\Users\\UserController\\Creator;\n \n use App;\n use App\\Services\\Acl;\n"
+      }
+   ],
+   "time":{
+      "total":0
+   },
+   "memory":0
+}
