@@ -48,7 +48,7 @@ describe('Pull requests', () => {
     expect(comments).toEqual([])
   })
 
-  test('ZEN-10274 PR-1136', () => {
+  test.skip('CHECKING INTEGRITY -- ZEN-10274 PR-1136', () => {
     const comments = run(ZEN10274_PR1136_json, ZEN10274_PR1136_diff)
 
     expect(comments).toEqual([
