@@ -1,11 +1,6 @@
 import {expect, test, describe} from '@jest/globals'
-import {parseComment} from '../src/parse-comment'
-import {normalizeFile} from '../src/normalize-file'
-import {squashHunks} from '../src/squash-hunks'
-import {filterFiles} from '../src/filter-files'
-import { File, PatchDiff } from '../src/types'
-import { run as runMain } from '../src/main'
-import * as Diff from 'diff'
+import {run} from '../src/run'
+import {run as runMain} from '../src/main'
 
 import * as ZEN9582_json from './fixtures/ZEN-9582.json'
 import * as ZEN10274_PR1136_json from './fixtures/ZEN-10274-PR-1136.json'
@@ -256,33 +251,3 @@ index eb474d40ff8..a54d7da61bd 100644
     ])
   })
 })
-
-function run(j: any, d: any) {
-  const json: PatchDiff[] = Diff.parsePatch(j.files.map((file: File): string => {
-    return file.diff
-  }).join('\n'))
-  const diff: PatchDiff[] = Diff.parsePatch(d)
-
-  const files = diff
-    .map(normalizeFile)
-
-  return json
-    .filter(
-        filterFiles(files)
-      )
-    .map(
-        squashHunks(files)
-      )
-    .filter((file: PatchDiff) => {
-      return file.hunks.length > 0
-    })
-    .map((file: PatchDiff) => {
-      const foundFile = files.find((f:any) => file.newFileName.includes(f.path))
-  
-      return [
-        file.hunks.map(parseComment(foundFile))
-      ]
-      .flat()
-    })
-    .flat()
-}
