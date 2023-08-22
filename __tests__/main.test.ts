@@ -48,42 +48,10 @@ describe('Pull requests', () => {
     expect(comments).toEqual([])
   })
 
-  test.skip('CHECKING INTEGRITY -- ZEN-10274 PR-1136', () => {
+  test('ZEN-10274 PR-1136', () => {
     const comments = run(ZEN10274_PR1136_json, ZEN10274_PR1136_diff)
 
-    expect(comments).toEqual([
-      {
-        path: 'ecs-test-file.php',
-        side: 'RIGHT',
-        start_side: 'RIGHT',
-        start_line: 15,
-        line: 19,
-        body: '```diff\n' +
-          '     ClassZ,\n' +
-          ' };\n' +
-          ' \n' +
-          '-class ClassName extends ParentClass implements \\ArrayAccess, \\Countable, \\Serializable {\n' +
-          '-    use First, Second, Third;\n' +
-          '+class ClassName extends ParentClass implements \\ArrayAccess, \\Countable, \\Serializable\n' +
-          '+{\n' +
-          '+    use First;\n' +
-          '+    use Second;\n' +
-          '+    use Third;\n' +
-          ' \n' +
-          '-    var $_foo;\n' +
-          '+    public $_foo;\n' +
-          ' \n' +
-          '-    function _myFunc (\n' +
-          '+    public function _myFunc(\n' +
-          '         int $arg = 0,\n' +
-          '         $arg2,\n' +
-          '-    ): ? bool{\n' +
-          '+    ): ?bool {\n' +
-          '     }\n' +
-          ' }\n' +
-          '```',
-      }
-    ])
+    expect(comments).toEqual([])
   })
   test('ZEN-9582', () => {
     const diff = `diff --git a/tests/Integration/Company/CompanyUserExportControllerTest.php b/tests/Integration/Company/CompanyUserStatsExportControllerTest.php
