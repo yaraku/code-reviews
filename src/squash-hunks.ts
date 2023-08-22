@@ -1,13 +1,12 @@
-import { Hunk, PatchDiff } from "./types";
+import {Hunk, PatchDiff} from './types'
 const Diff = require('diff')
 
 export function squashHunks(files: any) {
   return (file: PatchDiff) => {
-    const foundFile = files.find((f:any) => file.newFileName.includes(f.path))
-    const { hunks } = file
+    const foundFile = files.find((f: any) => file.newFileName.includes(f.path))
+    const {hunks} = file
 
-    file.hunks = hunks
-      .filter(filterHunks(foundFile))
+    file.hunks = hunks.filter(filterHunks(foundFile))
 
     return file
   }
@@ -15,13 +14,13 @@ export function squashHunks(files: any) {
 
 function filterHunks(foundFile: any) {
   return (hunk: Hunk) => {
-    const { startA, endA, startB, endB } = {
-      startA: hunk.newStart,
-      endA: hunk.newStart + hunk.newLines - 1,
-      startB: foundFile.start,
-      endB: foundFile.end
+    const {hunkStart, hunkEnd, fileStart, fileEnd} = {
+      hunkStart: hunk.newStart,
+      hunkEnd: hunk.newStart + hunk.newLines - 1,
+      fileStart: foundFile.start,
+      fileEnd: foundFile.end
     }
 
-    return startB >= startA && endB <= endA
+    return hunkStart >= fileStart && hunkEnd <= fileEnd
   }
 }

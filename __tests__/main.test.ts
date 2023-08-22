@@ -4,8 +4,8 @@ import {normalizeFile} from '../src/normalize-file'
 import {squashHunks} from '../src/squash-hunks'
 import {filterFiles} from '../src/filter-files'
 import { File, PatchDiff } from '../src/types'
-
-const Diff = require('diff')
+import { run as runMain } from '../src/main'
+import * as Diff from 'diff'
 
 import * as ZEN9582_json from './fixtures/ZEN-9582.json'
 import * as ZEN10274_PR1136_json from './fixtures/ZEN-10274-PR-1136.json'
@@ -14,8 +14,13 @@ import * as ZEN10598_PR1143_json from './fixtures/ZEN-10598-PR-1143.json'
 import {diff as ZEN10598_PR1143_diff} from './fixtures/ZEN-10598-PR-1143.diff'
 import * as ZEN10261_PR1106_json from './fixtures/ZEN-10261-PR-1106.json'
 import {diff as ZEN10261_PR1106_diff} from './fixtures/ZEN-10261-PR-1106.diff'
+import * as ZEN10592_PR1227_json from './fixtures/ZEN-10592-PR-1227.json'
+import {diff as ZEN10592_PR1227_diff} from './fixtures/ZEN-10592-PR-1227.diff'
 
 describe('Pull requests', () => {
+  test('runs successfully', async () => {
+    await expect(runMain()).resolves.not.toThrow()
+  })
   test('ZEN-10261 PR-1106', () => {
     const comments = run(ZEN10261_PR1106_json, ZEN10261_PR1106_diff)
 
@@ -46,39 +51,7 @@ describe('Pull requests', () => {
   test('ZEN-10274 PR-1136', () => {
     const comments = run(ZEN10274_PR1136_json, ZEN10274_PR1136_diff)
 
-    expect(comments).toEqual([
-      {
-        path: 'ecs-test-file.php',
-        side: 'RIGHT',
-        start_side: 'RIGHT',
-        start_line: 15,
-        line: 19,
-        body: '```diff\n' +
-          '     ClassZ,\n' +
-          ' };\n' +
-          ' \n' +
-          '-class ClassName extends ParentClass implements \\ArrayAccess, \\Countable, \\Serializable {\n' +
-          '-    use First, Second, Third;\n' +
-          '+class ClassName extends ParentClass implements \\ArrayAccess, \\Countable, \\Serializable\n' +
-          '+{\n' +
-          '+    use First;\n' +
-          '+    use Second;\n' +
-          '+    use Third;\n' +
-          ' \n' +
-          '-    var $_foo;\n' +
-          '+    public $_foo;\n' +
-          ' \n' +
-          '-    function _myFunc (\n' +
-          '+    public function _myFunc(\n' +
-          '         int $arg = 0,\n' +
-          '         $arg2,\n' +
-          '-    ): ? bool{\n' +
-          '+    ): ?bool {\n' +
-          '     }\n' +
-          ' }\n' +
-          '```',
-      }
-    ])
+    expect(comments).toEqual([])
   })
   test('ZEN-9582', () => {
     const diff = `diff --git a/tests/Integration/Company/CompanyUserExportControllerTest.php b/tests/Integration/Company/CompanyUserStatsExportControllerTest.php
@@ -158,6 +131,28 @@ index eb474d40ff8..a54d7da61bd 100644
       const comments = run(ZEN9582_json, diff)
 
       expect(comments).toEqual([])
+  })
+  test('ZEN-10592', () => {
+    const comments = run(ZEN10592_PR1227_json, ZEN10592_PR1227_diff)
+
+    expect(comments).toEqual([
+      {
+        path: 'tests/Integration/OOXml/Parsing/TextNodeSearchers/TextNodeSearcherTest.php',
+        side: 'RIGHT',
+        start_side: 'RIGHT',
+        start_line: 450,
+        line: 455,
+        body: '```diff\n' +
+'             Event::assertNotDispatched(MessageLogged::class);\n' +
+' \n' +
+'             $this->assertCount($count, $result);\n' +
+'-        } \n' +
+'+        }\n' +
+'     }\n' +
+' }\n' +
+'```',
+      }
+    ])
   })
 })
 

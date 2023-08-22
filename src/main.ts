@@ -1,10 +1,10 @@
+import * as Diff from 'diff'
 import * as core from '@actions/core'
 import * as github from '@actions/github'
-import { parseComment } from './parse-comment'
-import { Comment } from './types'
-const Diff = require('diff')
+import {Comment} from './types'
+import {parseComment} from './parse-comment'
 
-async function run(): Promise<void> {
+export async function run(): Promise<void> {
   try {
     const token = core.getInput('token')
     // API: https://actions-cool.github.io/octokit-rest/
@@ -13,7 +13,7 @@ async function run(): Promise<void> {
     const context = github.context
 
     const {owner, repo} = context.repo
-    var pull_number = context.payload.pull_request?.number ?? 1136
+    const pull_number = context.payload.pull_request?.number ?? 1136
 
     if (pull_number === -1) {
       throw new Error('Invalid PR number')
@@ -31,7 +31,7 @@ async function run(): Promise<void> {
     //    --preset=psr12
     //    -v
     //    --format=json
-    var json = JSON.parse(core.getInput('json_output'))
+    let json = JSON.parse(core.getInput('json_output'))
 
     if (json.files.length === 0) {
       await octokit.rest.pulls.createReview({
@@ -53,12 +53,12 @@ async function run(): Promise<void> {
 
     json = Diff.parsePatch(json.files.map((f: any) => f.diff).join('\n'))
     const diff = Diff.parsePatch(data as unknown as string)
-  
+
     // These are the files that are in the PR
-    const files = diff.map((d:any) => {
-      const lines = d.hunks.map((h:any) =>
-        [h.newStart, h.newStart + h.newLines - 1]
-      ).flat()
+    const files = diff.map((d: any) => {
+      const lines = d.hunks
+        .map((h: any) => [h.newStart, h.newStart + h.newLines - 1])
+        .flat()
 
       return {
         path: d.newFileName.split(/^b\//)[1],
@@ -66,28 +66,45 @@ async function run(): Promise<void> {
         end: lines[1]
       }
     })
-  
-    const comments: Comment[] = json.filter((file: any) => {
-      return files.find((f:any) => file.newFileName.includes(f.path)) !== undefined
-    }).map((file: any) => {
-      const foundFile = files.find((f:any) => file.newFileName.includes(f.path))
-      const { hunks } = file
-  
-      file.hunks = hunks.filter((h:any) => {
-        const { start, end } = {start: h.newStart, end: h.newStart + h.newLines - 1}
-  
-        return (start - foundFile.start >= 0 || end - foundFile.start >= 0) || (foundFile.end - end >= 0 || foundFile.end - start >= 0)
+
+    const comments: Comment[] = json
+      .filter((file: any) => {
+        return (
+          files.find((f: any) => file.newFileName.includes(f.path)) !==
+          undefined
+        )
       })
-  
-      return file
-    }).filter((file: any) => file.hunks.length > 0)
-    .map((file: any) => {
-      const foundFile = files.find((f:any) => file.newFileName.includes(f.path))
-  
-      return [
-        file.hunks.map(parseComment(foundFile))
-      ].flat()
-    }).flat()
+      .map((file: any) => {
+        const foundFile = files.find((f: any) =>
+          file.newFileName.includes(f.path)
+        )
+        const {hunks} = file
+
+        file.hunks = hunks.filter((h: any) => {
+          const {start, end} = {
+            start: h.newStart,
+            end: h.newStart + h.newLines - 1
+          }
+
+          return (
+            start - foundFile.start >= 0 ||
+            end - foundFile.start >= 0 ||
+            foundFile.end - end >= 0 ||
+            foundFile.end - start >= 0
+          )
+        })
+
+        return file
+      })
+      .filter((file: any) => file.hunks.length > 0)
+      .map((file: any) => {
+        const foundFile = files.find((f: any) =>
+          file.newFileName.includes(f.path)
+        )
+
+        return [file.hunks.map(parseComment(foundFile))].flat()
+      })
+      .flat()
 
     core.info(JSON.stringify(comments))
 

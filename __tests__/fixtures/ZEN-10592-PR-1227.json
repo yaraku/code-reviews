@@ -1,0 +1,25 @@
+{
+   "files":[
+      {
+         "name":"\/Users\/work\/Projects\/zen\/app\/Services\/OOXml\/Parsing\/XmlFileExtractors\/XmlFileExtractorXlsx.php",
+         "appliedFixers":[
+            "no_space_around_double_colon"
+         ],
+         "diff":"--- \/Users\/work\/Projects\/zen\/app\/Services\/OOXml\/Parsing\/XmlFileExtractors\/XmlFileExtractorXlsx.php\n+++ \/Users\/work\/Projects\/zen\/app\/Services\/OOXml\/Parsing\/XmlFileExtractors\/XmlFileExtractorXlsx.php\n@@ -24,8 +24,7 @@\n             '\/\/c[@t=\"s\"]\/v'\n         );\n \n-        $this->sharedStringsMap = TextNodeSearchers\\TextNodeDOMMap\n-            ::create('xl\/sharedStrings.xml', '\/\/si\/\/t')\n+        $this->sharedStringsMap = TextNodeSearchers\\TextNodeDOMMap::create('xl\/sharedStrings.xml', '\/\/si\/\/t')\n             ->setTagWithText('t')\n             ->setTagToMerge('si')\n             ->setTagToSkip('rPh');\n@@ -41,8 +40,7 @@\n         return [\n             $this->sheetFileMap,\n \n-            TextNodeSearchers\\TextNodeDOMMap\n-                ::create('xl\\\/drawings\\\/drawing.*\\.xml', '\/\/a:t')\n+            TextNodeSearchers\\TextNodeDOMMap::create('xl\\\/drawings\\\/drawing.*\\.xml', '\/\/a:t')\n                 ->setTagWithText('a:t')\n                 ->setTagToMerge('a:p')\n                 ->setTagToSkip('m:t'),\n"
+      },
+      {
+         "name":"\/Users\/work\/Projects\/zen\/tests\/Integration\/OOXml\/Parsing\/TextNodeSearchers\/TextNodeSearcherTest.php",
+         "appliedFixers":[
+            "no_space_around_double_colon",
+            "no_trailing_whitespace",
+            "no_trailing_whitespace_in_comment",
+            "no_whitespace_in_blank_line"
+         ],
+         "diff":"--- \/Users\/work\/Projects\/zen\/tests\/Integration\/OOXml\/Parsing\/TextNodeSearchers\/TextNodeSearcherTest.php\n+++ \/Users\/work\/Projects\/zen\/tests\/Integration\/OOXml\/Parsing\/TextNodeSearchers\/TextNodeSearcherTest.php\n@@ -41,8 +41,7 @@\n             'word\/document.xml'\n         );\n \n-        $domMap = Parsing\\TextNodeSearchers\\TextNodeDOMMap\n-            ::create('word\\\/document\\.xml', '\/\/w:t')\n+        $domMap = Parsing\\TextNodeSearchers\\TextNodeDOMMap::create('word\\\/document\\.xml', '\/\/w:t')\n             ->setTagWithText('w:t')\n             ->setTagToMerge('w:p')\n             ->setTagToSkip('m:t');\n@@ -72,8 +71,7 @@\n             'xl\/sharedStrings.xml'\n         );\n \n-        $sharedStringsMap = Parsing\\TextNodeSearchers\\TextNodeDOMMap\n-            ::create('xl\/sharedStrings.xml', '\/\/si\/\/t')\n+        $sharedStringsMap = Parsing\\TextNodeSearchers\\TextNodeDOMMap::create('xl\/sharedStrings.xml', '\/\/si\/\/t')\n             ->setTagWithText('t')\n             ->setTagToMerge('si')\n             ->setTagToSkip('rPh');\n@@ -164,7 +162,7 @@\n \n     \/**\n      * This namespace error happens when\n-     * a namespace in the document is used \n+     * a namespace in the document is used\n      * but not defined (it fails on loadXML).\n      * @covers \\App\\Services\\OOXml\\Parsing\\TextNodeSearchers\\TextNodeSearcher::findAndMergeNodes()\n      *\/\n@@ -216,7 +214,7 @@\n \n         Event::assertDispatched(\n             MessageLogged::class,\n-            fn (MessageLogged $event) \n+            fn (MessageLogged $event)\n             => $event->message === 'Xpath query failed'\n                 && $event->context['nodes'] === $nodeTree\n         );\n@@ -255,7 +253,7 @@\n \n         $this->assertCount(71, $textNodeSearcher->findAndMergeNodes());\n     }\n- \n+\n     \/**\n      * @covers \\App\\Services\\OOXml\\Parsing\\TextNodeSearchers\\TextNodeSearcher::findAndMergeNodes()\n      *\/\n@@ -452,6 +450,6 @@\n             Event::assertNotDispatched(MessageLogged::class);\n \n             $this->assertCount($count, $result);\n-        } \n+        }\n     }\n }\n"
+      }
+   ],
+   "time":{
+      "total":0
+   },
+   "memory":0
+}
