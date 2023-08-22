@@ -1,13 +1,12 @@
-import { Hunk, PatchDiff } from "./types";
+import {Hunk, PatchDiff} from './types'
 const Diff = require('diff')
 
 export function squashHunks(files: any) {
   return (file: PatchDiff) => {
-    const foundFile = files.find((f:any) => file.newFileName.includes(f.path))
-    const { hunks } = file
+    const foundFile = files.find((f: any) => file.newFileName.includes(f.path))
+    const {hunks} = file
 
-    file.hunks = hunks
-      .filter(filterHunks(foundFile))
+    file.hunks = hunks.filter(filterHunks(foundFile))
 
     return file
   }
