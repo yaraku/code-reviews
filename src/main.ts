@@ -1,7 +1,8 @@
+import * as Diff from 'diff'
 import * as core from '@actions/core'
 import * as github from '@actions/github'
 import {Comment} from './types'
-import {run as runFunc} from './run'
+import {parseComment} from './parse-comment'
 
 export async function run(): Promise<void> {
   try {
@@ -30,7 +31,7 @@ export async function run(): Promise<void> {
     //    --preset=psr12
     //    -v
     //    --format=json
-    const json = JSON.parse(core.getInput('json_output'))
+    let json = JSON.parse(core.getInput('json_output'))
 
     if (json.files.length === 0) {
       await octokit.rest.pulls.createReview({
@@ -50,10 +51,60 @@ export async function run(): Promise<void> {
       }
     })
 
-    const comments: Comment[] = runFunc(
-      json.files.map((f: any) => f.diff).join('\n'),
-      data as unknown as string
-    )
+    json = Diff.parsePatch(json.files.map((f: any) => f.diff).join('\n'))
+    const diff = Diff.parsePatch(data as unknown as string)
+
+    // These are the files that are in the PR
+    const files = diff.map((d: any) => {
+      const lines = d.hunks
+        .map((h: any) => [h.newStart, h.newStart + h.newLines - 1])
+        .flat()
+
+      return {
+        path: d.newFileName.split(/^b\//)[1],
+        start: lines[0],
+        end: lines[1]
+      }
+    })
+
+    const comments: Comment[] = json
+      .filter((file: any) => {
+        return (
+          files.find((f: any) => file.newFileName.includes(f.path)) !==
+          undefined
+        )
+      })
+      .map((file: any) => {
+        const foundFile = files.find((f: any) =>
+          file.newFileName.includes(f.path)
+        )
+        const {hunks} = file
+
+        file.hunks = hunks.filter((h: any) => {
+          const {start, end} = {
+            start: h.newStart,
+            end: h.newStart + h.newLines - 1
+          }
+
+          return (
+            start - foundFile.start >= 0 ||
+            end - foundFile.start >= 0 ||
+            foundFile.end - end >= 0 ||
+            foundFile.end - start >= 0
+          )
+        })
+
+        return file
+      })
+      .filter((file: any) => file.hunks.length > 0)
+      .map((file: any) => {
+        const foundFile = files.find((f: any) =>
+          file.newFileName.includes(f.path)
+        )
+
+        return [file.hunks.map(parseComment(foundFile))].flat()
+      })
+      .flat()
 
     core.info(JSON.stringify(comments))
 
