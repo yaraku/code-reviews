@@ -1,6 +1,26 @@
 require('./sourcemap-register.js');/******/ (() => { // webpackBootstrap
 /******/ 	var __webpack_modules__ = ({
 
+/***/ 1353:
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.filterFiles = void 0;
+function filterFiles(files) {
+    return (fileA) => {
+        return (files.find((fileB) => {
+            var _a;
+            return (_a = fileA === null || fileA === void 0 ? void 0 : fileA.newFileName) === null || _a === void 0 ? void 0 : _a.includes(fileB.path);
+        }) !== undefined);
+    };
+}
+exports.filterFiles = filterFiles;
+
+
+/***/ }),
+
 /***/ 3109:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
@@ -36,10 +56,9 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.run = void 0;
-const Diff = __importStar(__nccwpck_require__(1672));
 const core = __importStar(__nccwpck_require__(2186));
 const github = __importStar(__nccwpck_require__(5438));
-const parse_comment_1 = __nccwpck_require__(1048);
+const run_1 = __nccwpck_require__(7884);
 function run() {
     var _a, _b;
     return __awaiter(this, void 0, void 0, function* () {
@@ -65,7 +84,7 @@ function run() {
             //    --preset=psr12
             //    -v
             //    --format=json
-            let json = JSON.parse(core.getInput('json_output'));
+            const json = JSON.parse(core.getInput('json_output'));
             if (json.files.length === 0) {
                 yield octokit.rest.pulls.createReview({
                     owner,
@@ -82,45 +101,7 @@ function run() {
                     accept: 'application/vnd.github.v3.diff'
                 }
             });
-            json = Diff.parsePatch(json.files.map((f) => f.diff).join('\n'));
-            const diff = Diff.parsePatch(data);
-            // These are the files that are in the PR
-            const files = diff.map((d) => {
-                const lines = d.hunks
-                    .map((h) => [h.newStart, h.newStart + h.newLines - 1])
-                    .flat();
-                return {
-                    path: d.newFileName.split(/^b\//)[1],
-                    start: lines[0],
-                    end: lines[1]
-                };
-            });
-            const comments = json
-                .filter((file) => {
-                return (files.find((f) => file.newFileName.includes(f.path)) !==
-                    undefined);
-            })
-                .map((file) => {
-                const foundFile = files.find((f) => file.newFileName.includes(f.path));
-                const { hunks } = file;
-                file.hunks = hunks.filter((h) => {
-                    const { start, end } = {
-                        start: h.newStart,
-                        end: h.newStart + h.newLines - 1
-                    };
-                    return (start - foundFile.start >= 0 ||
-                        end - foundFile.start >= 0 ||
-                        foundFile.end - end >= 0 ||
-                        foundFile.end - start >= 0);
-                });
-                return file;
-            })
-                .filter((file) => file.hunks.length > 0)
-                .map((file) => {
-                const foundFile = files.find((f) => file.newFileName.includes(f.path));
-                return [file.hunks.map((0, parse_comment_1.parseComment)(foundFile))].flat();
-            })
-                .flat();
+            const comments = (0, run_1.run)(json, data);
             core.info(JSON.stringify(comments));
             if (comments.length > 0) {
                 // Create review
@@ -152,6 +133,29 @@ run();
 
 /***/ }),
 
+/***/ 4676:
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.normalizeFile = void 0;
+function normalizeFile(diff) {
+    const lines = diff.hunks.map(linesFromHunk).flat();
+    return {
+        path: diff.newFileName.split(/^b\//)[1],
+        start: lines[0],
+        end: lines[1]
+    };
+}
+exports.normalizeFile = normalizeFile;
+function linesFromHunk(hunk) {
+    return [hunk.newStart, hunk.newStart + hunk.newLines - 1];
+}
+
+
+/***/ }),
+
 /***/ 1048:
 /***/ ((__unused_webpack_module, exports) => {
 
@@ -174,6 +178,94 @@ function parseComment(foundFile) {
     };
 }
 exports.parseComment = parseComment;
+
+
+/***/ }),
+
+/***/ 7884:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.run = void 0;
+const Diff = __importStar(__nccwpck_require__(1672));
+const filter_files_1 = __nccwpck_require__(1353);
+const normalize_file_1 = __nccwpck_require__(4676);
+const parse_comment_1 = __nccwpck_require__(1048);
+const squash_hunks_1 = __nccwpck_require__(4435);
+function run(j, d) {
+    const json = Diff.parsePatch(j.files
+        .map((file) => {
+        return file.diff;
+    })
+        .join('\n'));
+    const diff = Diff.parsePatch(d);
+    const files = diff.map(normalize_file_1.normalizeFile);
+    return json
+        .filter((0, filter_files_1.filterFiles)(files))
+        .map((0, squash_hunks_1.squashHunks)(files))
+        .filter((file) => {
+        return file.hunks.length > 0;
+    })
+        .map((file) => {
+        const foundFile = files.find((f) => file.newFileName.includes(f.path));
+        return [file.hunks.map((0, parse_comment_1.parseComment)(foundFile))].flat();
+    })
+        .flat();
+}
+exports.run = run;
+
+
+/***/ }),
+
+/***/ 4435:
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.squashHunks = void 0;
+const Diff = __nccwpck_require__(1672);
+function squashHunks(files) {
+    return (file) => {
+        const foundFile = files.find((f) => file.newFileName.includes(f.path));
+        const { hunks } = file;
+        file.hunks = hunks.filter(filterHunks(foundFile));
+        return file;
+    };
+}
+exports.squashHunks = squashHunks;
+function filterHunks(foundFile) {
+    return (hunk) => {
+        const { hunkStart, hunkEnd, fileStart, fileEnd } = {
+            hunkStart: hunk.newStart,
+            hunkEnd: hunk.newStart + hunk.newLines - 1,
+            fileStart: foundFile.start,
+            fileEnd: foundFile.end
+        };
+        return hunkStart >= fileStart && hunkEnd <= fileEnd;
+    };
+}
 
 
 /***/ }),

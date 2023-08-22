@@ -50,10 +50,7 @@ export async function run(): Promise<void> {
       }
     })
 
-    const comments: Comment[] = runFunc(
-      json.files.map((f: any) => f.diff).join('\n'),
-      data as unknown as string
-    )
+    const comments: Comment[] = runFunc(json, data as unknown as string)
 
     core.info(JSON.stringify(comments))
 
