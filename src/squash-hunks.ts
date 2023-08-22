@@ -14,13 +14,13 @@ export function squashHunks(files: any) {
 
 function filterHunks(foundFile: any) {
   return (hunk: Hunk) => {
-    const { startA, endA, startB, endB } = {
-      startA: hunk.newStart,
-      endA: hunk.newStart + hunk.newLines - 1,
-      startB: foundFile.start,
-      endB: foundFile.end
+    const {hunkStart, hunkEnd, fileStart, fileEnd} = {
+      hunkStart: hunk.newStart,
+      hunkEnd: hunk.newStart + hunk.newLines - 1,
+      fileStart: foundFile.start,
+      fileEnd: foundFile.end
     }
 
-    return startB >= startA && endB <= endA
+    return hunkStart >= fileStart && hunkEnd <= fileEnd
   }
 }
