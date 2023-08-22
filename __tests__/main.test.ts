@@ -14,6 +14,8 @@ import * as ZEN10598_PR1143_json from './fixtures/ZEN-10598-PR-1143.json'
 import {diff as ZEN10598_PR1143_diff} from './fixtures/ZEN-10598-PR-1143.diff'
 import * as ZEN10261_PR1106_json from './fixtures/ZEN-10261-PR-1106.json'
 import {diff as ZEN10261_PR1106_diff} from './fixtures/ZEN-10261-PR-1106.diff'
+import * as ZEN10592_PR1227_json from './fixtures/ZEN-10592-PR-1227.json'
+import {diff as ZEN10592_PR1227_diff} from './fixtures/ZEN-10592-PR-1227.diff'
 
 describe('Pull requests', () => {
   test('runs successfully', async () => {
@@ -161,6 +163,28 @@ index eb474d40ff8..a54d7da61bd 100644
       const comments = run(ZEN9582_json, diff)
 
       expect(comments).toEqual([])
+  })
+  test('ZEN-10592', () => {
+    const comments = run(ZEN10592_PR1227_json, ZEN10592_PR1227_diff)
+
+    expect(comments).toEqual([
+      {
+        path: 'tests/Integration/OOXml/Parsing/TextNodeSearchers/TextNodeSearcherTest.php',
+        side: 'RIGHT',
+        start_side: 'RIGHT',
+        start_line: 450,
+        line: 455,
+        body: '```diff\n' +
+'             Event::assertNotDispatched(MessageLogged::class);\n' +
+' \n' +
+'             $this->assertCount($count, $result);\n' +
+'-        } \n' +
+'+        }\n' +
+'     }\n' +
+' }\n' +
+'```',
+      }
+    ])
   })
 })
 
