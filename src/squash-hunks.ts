@@ -1,5 +1,4 @@
 import {Hunk, PatchDiff} from './types'
-const Diff = require('diff')
 
 export function squashHunks(files: any) {
   return (file: PatchDiff) => {
@@ -13,12 +12,14 @@ export function squashHunks(files: any) {
 }
 
 function filterHunks(foundFile: any) {
+  const lineOffset = 1
+
   return (hunk: Hunk) => {
     const {hunkStart, hunkEnd, fileStart, fileEnd} = {
       hunkStart: hunk.newStart,
-      hunkEnd: hunk.newStart + hunk.newLines - 1,
-      fileStart: foundFile.start,
-      fileEnd: foundFile.end
+      hunkEnd: hunk.newStart + hunk.newLines - lineOffset,
+      fileStart: foundFile.start - lineOffset,
+      fileEnd: foundFile.end + lineOffset
     }
 
     return hunkStart >= fileStart && hunkEnd <= fileEnd

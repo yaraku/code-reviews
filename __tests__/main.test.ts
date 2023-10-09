@@ -13,6 +13,8 @@ import * as ZEN10592_PR1227_json from './fixtures/ZEN-10592-PR-1227.json'
 import {diff as ZEN10592_PR1227_diff} from './fixtures/ZEN-10592-PR-1227.diff'
 import * as ZEN12021_PR1622_json from './fixtures/ZEN-12021-PR-1622.json'
 import {diff as ZEN12021_PR1622_diff} from './fixtures/ZEN-12021-PR-1622.diff'
+import * as ZEN12485_PR1796_json from './fixtures/ZEN-12485-PR-1796.json'
+import {diff as ZEN12485_PR1796_diff} from './fixtures/ZEN-12485-PR-1796.diff'
 
 describe('Pull requests', () => {
   test('runs successfully', async () => {
@@ -247,6 +249,31 @@ index eb474d40ff8..a54d7da61bd 100644
           '             array_rand($special) .\n' +
           '\n' +
           '```'
+      }
+    ])
+  })
+  test('ZEN-12485 PR 1796', () => {
+    const comments = run(ZEN12485_PR1796_json, ZEN12485_PR1796_diff)
+
+    expect(comments).toEqual([
+      {
+        path: 'tests/Integration/Stripe/Concerns/FakeStripeHttpClient.php',
+        body:
+          '```diff\n' +
+          '         });\n' +
+          '     }\n' +
+          ' \n' +
+          '-    private function resetHttpClient(): void {\n' +
+          '+    private function resetHttpClient(): void\n' +
+          '+    {\n' +
+          '         ApiRequestor::setHttpClient(CurlClient::instance());\n' +
+          '     }\n' +
+          ' }\n' +
+          '```',
+        side: 'RIGHT',
+        start_side: 'RIGHT',
+        start_line: 20,
+        line: 26
       }
     ])
   })
