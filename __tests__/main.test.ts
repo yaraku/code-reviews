@@ -254,11 +254,12 @@ index eb474d40ff8..a54d7da61bd 100644
   })
   test('ZEN-12485 PR 1796', () => {
     const comments = run(ZEN12485_PR1796_json, ZEN12485_PR1796_diff)
-      
+
     expect(comments).toEqual([
       {
         path: 'tests/Integration/Stripe/Concerns/FakeStripeHttpClient.php',
-        body: '```diff\n' +
+        body:
+          '```diff\n' +
           '         });\n' +
           '     }\n' +
           ' \n' +
@@ -274,6 +275,6 @@ index eb474d40ff8..a54d7da61bd 100644
         start_line: 20,
         line: 26
       }
-    ]);
+    ])
   })
 })

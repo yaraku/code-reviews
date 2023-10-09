@@ -12,8 +12,8 @@ export function squashHunks(files: any) {
 }
 
 function filterHunks(foundFile: any) {
-  const lineOffset = 1;
-  
+  const lineOffset = 1
+
   return (hunk: Hunk) => {
     const {hunkStart, hunkEnd, fileStart, fileEnd} = {
       hunkStart: hunk.newStart,

@@ -11,4 +11,4 @@ index 8642eacfe4e..4b59fa341a6 100644
 +    private function resetHttpClient(): void {
          ApiRequestor::setHttpClient(CurlClient::instance());
      }
- }`;
+ }`
