@@ -1,0 +1,17 @@
+{
+  "files": [
+    {
+      "name": "\/github\/workspace\/tests\/Integration\/Stripe\/Concerns\/FakeStripeHttpClient.php",
+      "appliedFixers": [
+        "new_with_braces",
+        "class_definition",
+        "braces"
+      ],
+      "diff": "--- \/github\/workspace\/tests\/Integration\/Stripe\/Concerns\/FakeStripeHttpClient.php\n+++ \/github\/workspace\/tests\/Integration\/Stripe\/Concerns\/FakeStripeHttpClient.php\n@@ -11,8 +11,7 @@\n {\n     private function setHttpClient(): void\n     {\n-        ApiRequestor::setHttpClient(new class implements ClientInterface\n-        {\n+        ApiRequestor::setHttpClient(new class () implements ClientInterface {\n             public function request($method, $absUrl, $headers, $params, $hasFile)\n             {\n                 return Http::withHeaders($headers)->$method($absUrl, $params);\n@@ -20,7 +19,8 @@\n         });\n     }\n \n-    private function resetHttpClient(): void {\n+    private function resetHttpClient(): void\n+    {\n         ApiRequestor::setHttpClient(CurlClient::instance());\n     }\n }\n"
+    }
+  ],
+  "time": {
+    "total": 0
+  },
+  "memory": 0
+}
